@@ -11,7 +11,8 @@
 # Inspired by: Gentleman AI (gentleman-programming/gentle-ai)
 # ============================================
 
-set -e
+# Don't exit on error, but show them
+set -o pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -24,40 +25,38 @@ DIM='\033[2m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPO_URL="https://github.com/RETBOT/ai-agents.git"
+REPO_URL="https://github.com/RETBOT/quetzal.git"
 AGENT_NAME="quetzal"
 AGENT_DIR="quetzal"
 ENGRAM_REPO="https://github.com/Gentleman-Programming/engram.git"
 CONTEXT7_MCP_URL="https://mcp.context7.com/mcp"
 
+# Check if running from cloned repo
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IS_LOCAL_REPO=false
+
+if [ -f "$SCRIPT_DIR/quetzal/QUETZAL.md" ]; then
+    IS_LOCAL_REPO=true
+    echo -e "${BLUE}[info]${NC} Detected local repository at: $SCRIPT_DIR"
+fi
+
 # Detect OS and set paths
-detect_os() {
-    case "$(uname -s)" in
-        Linux*)
-            OS="linux"
-            HOME_DIR="$HOME"
-            LOCAL_BIN="$HOME/.local/bin"
-            ;;
-        Darwin*)
-            OS="macos"
-            HOME_DIR="$HOME"
-            LOCAL_BIN="$HOME/.local/bin"
-            ;;
-        MINGW*|MSYS*|CYGWIN*)
-            OS="windows"
-            HOME_DIR="$HOME"
-            LOCAL_BIN="$HOME/.local/bin"
-            ;;
-        *)
-            echo -e "${RED}❌ Unsupported OS: $(uname -s)${NC}"
-            exit 1
-            ;;
-    esac
+set_paths() {
+    if [ "$IS_LOCAL_REPO" = true ]; then
+        REPO_DIR="$SCRIPT_DIR"
+    else
+        REPO_DIR="$HOME_DIR/quetzal"
+    fi
+    INSTALL_DIR="$HOME_DIR/.opencode/agents"
+    CONFIG_PATH="$HOME_DIR/.opencode/agents.json"
+    ENGRAM_DIR="$HOME_DIR/.engram"
+    ENGRAM_BIN="$LOCAL_BIN/engram"
+    MCP_CONFIG_DIR="$HOME_DIR/.opencode/mcp"
 }
 
 # Set installation paths based on OS
 set_paths() {
-    REPO_DIR="$HOME_DIR/ai-agents"
+    REPO_DIR="$HOME_DIR/quetzal"
     INSTALL_DIR="$HOME_DIR/.opencode/agents"
     CONFIG_PATH="$HOME_DIR/.opencode/agents.json"
     ENGRAM_DIR="$HOME_DIR/.engram"
@@ -226,14 +225,27 @@ clone_or_update_repo() {
     echo ""
     echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Installing Quetzal Agent${NC}"
     
+    # If running from local repo, skip clone
+    if [ "$IS_LOCAL_REPO" = true ]; then
+        echo -e "${BLUE}[info]${NC} Using local repository: $REPO_DIR"
+        echo -e "${GREEN}✓${NC} Local repository confirmed"
+        return 0
+    fi
+    
     if [ ! -d "$REPO_DIR" ]; then
         echo -e "${BLUE}[clone]${NC} Cloning Quetzal repository..."
-        git clone --quiet "$REPO_URL" "$REPO_DIR"
+        git clone --quiet "$REPO_URL" "$REPO_DIR" || {
+            echo -e "${RED}❌ Failed to clone repository${NC}"
+            echo -e "${YELLOW}Please check your internet connection or the repository URL${NC}"
+            exit 1
+        }
         echo -e "${GREEN}✓${NC} Repository cloned"
     else
         echo -e "${BLUE}[update]${NC} Updating Quetzal repository..."
-        cd "$REPO_DIR"
-        git pull --quiet
+        cd "$REPO_DIR" || exit 1
+        git pull --quiet || {
+            echo -e "${YELLOW}⚠ Could not update repository (using existing version)${NC}"
+        }
         echo -e "${GREEN}✓${NC} Repository updated"
     fi
 }
@@ -266,22 +278,43 @@ install_agent() {
     TARGET_PATH="$INSTALL_DIR/$AGENT_NAME"
     SOURCE_PATH="$REPO_DIR/$AGENT_DIR"
     
+    echo -e "${BLUE}[info]${NC} Source: $SOURCE_PATH"
+    echo -e "${BLUE}[info]${NC} Target: $TARGET_PATH"
+    
+    # Verify source exists
+    if [ ! -d "$SOURCE_PATH" ]; then
+        echo -e "${RED}❌ Agent source not found: $SOURCE_PATH${NC}"
+        echo -e "${YELLOW}Make sure you're running this from the quetzal repository${NC}"
+        return 1
+    fi
+    
     # Remove existing installation
     if [ -L "$TARGET_PATH" ] || [ -d "$TARGET_PATH" ] || [ -f "$TARGET_PATH" ]; then
         echo -e "${BLUE}[update]${NC} Updating agent..."
-        rm -rf "$TARGET_PATH"
+        rm -rf "$TARGET_PATH" || {
+            echo -e "${YELLOW}⚠ Could not remove existing installation${NC}"
+            echo -e "${YELLOW}You may need to run as administrator${NC}"
+        }
     else
         echo -e "${BLUE}[install]${NC} Installing agent..."
     fi
     
-    # Try symlink first, fall back to copy
-    if ln -s "$SOURCE_PATH" "$TARGET_PATH" 2>/dev/null; then
-        echo -e "${GREEN}✓${NC} Created symbolic link"
-    else
-        echo -e "${YELLOW}⚠ Symlink failed, copying files...${NC}"
-        cp -r "$SOURCE_PATH" "$TARGET_PATH"
-        echo -e "${GREEN}✓${NC} Files copied"
+    # Try symlink first (skip on Windows/Git Bash if it fails), fall back to copy
+    if [ "$OS" != "windows" ]; then
+        if ln -s "$SOURCE_PATH" "$TARGET_PATH" 2>/dev/null; then
+            echo -e "${GREEN}✓${NC} Created symbolic link"
+            return 0
+        fi
     fi
+    
+    # Fallback to copy (always works)
+    echo -e "${YELLOW}⚠ Creating symbolic link (using file copy instead)...${NC}"
+    cp -r "$SOURCE_PATH" "$TARGET_PATH" || {
+        echo -e "${RED}❌ Failed to copy agent files${NC}"
+        echo -e "${YELLOW}You may need to run as administrator${NC}"
+        return 1
+    }
+    echo -e "${GREEN}✓${NC} Files copied successfully"
 }
 
 # Configure OpenCode MCP servers
@@ -393,9 +426,10 @@ create_project_engram() {
             mkdir -p ".engram"
             
             # Create project config
+            local project_name=$(basename "$REPO_DIR")
             cat > ".engram/project.json" << EOF
 {
-  "name": "ai-agents",
+  "name": "$project_name",
   "description": "Quetzal AI Agent with persistent memory",
   "auto_sync": true
 }
@@ -449,26 +483,50 @@ print_completion() {
     
     echo ""
     echo -e "${DIM}Config: $CONFIG_PATH${NC}"
-    echo -e "${DIM}Docs: https://github.com/RETBOT/ai-agents${NC}"
+    echo -e "${DIM}Docs: https://github.com/RETBOT/quetzal${NC}"
 }
 
 # Main execution
 main() {
+    # Debug info
+    echo -e "${DIM}Debug: Script running from: $(pwd)${NC}"
+    echo -e "${DIM}Debug: Script location: $(dirname "${BASH_SOURCE[0]}")${NC}"
+    
     detect_os
     set_paths
-    print_banner
-    check_prerequisites
     
-    # Install components
-    install_engram
-    install_context7
-    clone_or_update_repo
-    validate_agent
-    create_directories
-    install_agent
-    configure_mcp_servers
-    configure_opencode
-    create_project_engram
+    # Debug paths
+    echo -e "${DIM}Debug: REPO_DIR=$REPO_DIR${NC}"
+    echo -e "${DIM}Debug: INSTALL_DIR=$INSTALL_DIR${NC}"
+    echo -e "${DIM}Debug: IS_LOCAL_REPO=$IS_LOCAL_REPO${NC}"
+    
+    print_banner
+    check_prerequisites || exit 1
+    
+    echo -e "${CYAN}${BOLD}Starting installation...${NC}"
+    echo ""
+    
+    # Install components (continue even if some fail - they're optional)
+    install_engram || echo -e "${YELLOW}⚠ Engram installation skipped (optional)${NC}"
+    install_context7 || echo -e "${YELLOW}⚠ Context7 installation skipped (optional)${NC}"
+    
+    # Core installation (these should not fail)
+    echo -e "${BLUE}[step]${NC} Cloning/updating repository..."
+    clone_or_update_repo || exit 1
+    
+    echo -e "${BLUE}[step]${NC} Validating agent..."
+    validate_agent || exit 1
+    
+    echo -e "${BLUE}[step]${NC} Creating directories..."
+    create_directories || exit 1
+    
+    echo -e "${BLUE}[step]${NC} Installing agent..."
+    install_agent || exit 1
+    
+    # Configuration (continue even if these fail)
+    configure_mcp_servers || echo -e "${YELLOW}⚠ MCP configuration skipped${NC}"
+    configure_opencode || echo -e "${YELLOW}⚠ Agent configuration skipped${NC}"
+    create_project_engram || true
     
     print_completion
 }
