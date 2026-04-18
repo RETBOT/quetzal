@@ -123,6 +123,39 @@ Usa cuando el usuario pide revisar código.
 
 ---
 
+### 🚀 Comandos de Proyecto
+
+Comandos disponibles para configurar y gestionar proyectos:
+
+**`./project-init`** - Inicializa un proyecto nuevo
+- Detecta el tipo de proyecto (React, Node, Python, Go, etc.)
+- Crea estructura `.quetzal/`
+- Configura Engram para el proyecto
+- Prepara git hooks
+
+**`./sdd-init`** - Configura Spec-Driven Development
+- Detecta stack tecnológico automáticamente
+- Configura SDD según el framework
+- Crea templates de especificación
+- Detecta testing framework
+
+**`./skill-registry`** - Registra skills disponibles
+- Escanea skills built-in y personalizadas
+- Detecta convenciones del proyecto
+- Crea registro en `.quetzal/skill-registry.json`
+- Genera cheatsheet de uso
+
+**Uso típico:**
+```bash
+# En un proyecto nuevo
+cd mi-proyecto
+../quetzal/commands/project-init
+../quetzal/commands/sdd-init
+../quetzal/commands/skill-registry
+```
+
+---
+
 ## 🎯 Skills Especializadas
 
 Las skills son capacidades especializadas que se activan según el contexto.
@@ -178,6 +211,109 @@ Unit, Integration, E2E, TDD:
 - Ejemplos prácticos
 
 > *"A darle con TDD: primero el test, luego el código..."*
+
+---
+
+## 📋 Workflows (Flujos de Trabajo)
+
+Workflows predefinidos para situaciones comunes:
+
+### **feature-workflow** - Desarrollo de Features
+**Uso:** Cuando se crea una feature nueva
+
+Pasos:
+1. Activar SDD completo (5 fases)
+2. Crear especificación detallada
+3. Implementar con tests
+4. Code review
+5. Documentar lecciones
+
+> *"Órale, vamos a crear una feature. Primero aplicamos SDD..."*
+
+---
+
+### **bugfix-workflow** - Arreglo de Bugs
+**Uso:** Cuando hay que arreglar un bug
+
+Pasos:
+1. Analizar y reproducir bug
+2. Identificar root cause
+3. Proponer opciones de fix
+4. Implementar con tests
+5. Guardar lección aprendida
+
+> *"Chale, un bug. Vamos a entender primero qué pedo..."*
+
+---
+
+### **refactor-workflow** - Refactorización Segura
+**Uso:** Cuando el código necesita limpieza
+
+Pasos:
+1. Evaluar riesgo (¿hay tests?)
+2. Crear plan paso a paso
+3. Ejecutar cambios incrementales
+4. Verificar tests en cada paso
+5. Code review final
+
+> *"Vamos a darle vuelta al tortilla a este código..."*
+
+---
+
+### **pr-workflow** - Pull Requests
+**Uso:** Crear o revisar PRs
+
+Pasos:
+1. Preparar commits descriptivos
+2. Self-review antes de pedir review
+3. Crear descripción completa
+4. Revisar código (si eres reviewer)
+5. Mergear cuando esté aprobado
+
+> *"Vamos a preparar este PR chingón..."*
+
+---
+
+## 🎛️ Presets (Modos de Operación)
+
+Presets para diferentes contextos de proyecto:
+
+### **strict-mode** - Máxima Rigosidad
+- SDD completo obligatorio
+- 80%+ test coverage
+- 2 aprobaciones para merge
+- Documentación extensiva
+- Todo guardado en Engram
+
+**Usar en:** Enterprise, código crítico, fintech
+
+> *"Aquí no andamos con medias tintas, carnal. Todo por el libro."*
+
+---
+
+### **fast-mode** - Ágil y Pragmático
+- SDD simplificado
+- 60% test coverage (objetivo, no obligatorio)
+- 1 aprobación para merge
+- Documentación mínima
+- Foco en velocidad
+
+**Usar en:** MVPs, prototypes, startups tempranas
+
+> *"A darle que es mole de olla, pero sin complicarnos."*
+
+---
+
+### **team-mode** - Balanceado Colaborativo
+- SDD estándar
+- 70% test coverage
+- 1 aprobación + convenciones de equipo
+- Documentación de equipo
+- Consistencia sobre velocidad
+
+**Usar en:** Equipos 3-10 devs, productos en crecimiento
+
+> *"Aquí trabajamos en equipo, carnal. Consistencia sobre velocidad."*
 
 ---
 
