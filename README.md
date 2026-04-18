@@ -152,6 +152,50 @@ Quetzal: [Activa skill: code-review]
 
 Las skills están en `/skills/` y son personalizables.
 
+### 🚀 Comandos de Proyecto (Pack Esencial)
+Comandos que configuran y gestionan tu proyecto:
+
+```bash
+./commands/project-init      # Inicializa proyecto con Quetzal
+./commands/sdd-init          # Detecta stack y configura SDD
+./commands/skill-registry    # Escanea y registra skills disponibles
+```
+
+**Ejemplo de uso:**
+```bash
+cd mi-proyecto
+../quetzal/commands/project-init    # Configura Quetzal
+../quetzal/commands/sdd-init        # Detecta React/Node/etc
+../quetzal/commands/skill-registry  # Registra skills
+```
+
+### 📋 Workflows (Flujos de Trabajo)
+Workflows predefinidos para situaciones comunes:
+
+| Workflow | Descripción | Archivo |
+|----------|-------------|---------|
+| **feature-workflow** | Crear nueva feature con SDD completo | `workflows/feature-workflow.md` |
+| **bugfix-workflow** | Arreglar bugs con análisis root cause | `workflows/bugfix-workflow.md` |
+| **refactor-workflow** | Refactorización segura paso a paso | `workflows/refactor-workflow.md` |
+| **pr-workflow** | Crear y revisar Pull Requests | `workflows/pr-workflow.md` |
+
+### 🎛️ Presets (Modos de Operación)
+Presets para diferentes contextos:
+
+| Preset | Descripción | Cuándo usar |
+|--------|-------------|-------------|
+| **strict-mode** | Máxima rigurosidad (80% coverage, SDD obligatorio) | Enterprise, código crítico |
+| **fast-mode** | Ágil y pragmático (60% coverage, flexible) | MVPs, prototypes |
+| **team-mode** | Balanceado con convenciones de equipo | Equipos 3-10 devs |
+
+**Cambiar preset:**
+```bash
+# En .quetzal/config.json
+{
+  "mode": "strict"  # o "fast", "team"
+}
+```
+
 ---
 
 ## 📋 Requirements

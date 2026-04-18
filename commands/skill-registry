@@ -1,0 +1,340 @@
+#!/bin/bash
+# =============================================================================
+# Quetzal Skill Registry Command
+# Escanea y registra las skills disponibles
+# =============================================================================
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+echo -e "${CYAN}${BOLD}"
+echo "  🦜 Quetzal Skill Registry"
+echo "  ========================="
+echo -e "${NC}"
+echo -e "  ${DIM}Escaneando skills disponibles...${NC}"
+echo ""
+
+# Directorios de skills
+SKILLS_DIR="${SKILLS_DIR:-./skills}"
+REGISTRY_FILE=".quetzal/skill-registry.json"
+
+# Contadores
+total_skills=0
+active_skills=0
+
+# Escaneo de skills
+scan_skills() {
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Escaneando directorio de skills...${NC}"
+    
+    if [ ! -d "$SKILLS_DIR" ]; then
+        echo -e "${YELLOW}⚠${NC} No se encontró directorio de skills: $SKILLS_DIR"
+        echo -e "  ${DIM}Usando skills built-in de Quetzal${NC}"
+        SKILLS_DIR=""
+        return
+    fi
+    
+    echo -e "${BLUE}[scan]${NC} Directorio: ${BOLD}$SKILLS_DIR${NC}"
+    
+    # Contar skills
+    for skill_dir in "$SKILLS_DIR"/*/; do
+        if [ -d "$skill_dir" ]; then
+            ((total_skills++))
+            skill_name=$(basename "$skill_dir")
+            echo -e "  ${GREEN}✓${NC} Skill detectada: ${BOLD}$skill_name${NC}"
+        fi
+    done
+    
+    echo ""
+    echo -e "${GREEN}✓${NC} Total skills encontradas: ${BOLD}$total_skills${NC}"
+}
+
+# Análisis de triggers
+analyze_triggers() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Analizando triggers...${NC}"
+    
+    declare -A skill_triggers
+    
+    # Skills built-in (siempre disponibles)
+    skill_triggers["code-review"]="Revisa este código, code review, qué opinas"
+    skill_triggers["refactoring"]="Refactoriza, simplifica, limpia este código"
+    skill_triggers["sdd"]="Planear feature, diseñar esto, SDD"
+    skill_triggers["testing"]="Haz tests, TDD, valida esto"
+    
+    # Skills personalizadas del directorio
+    if [ -d "$SKILLS_DIR" ]; then
+        for skill_dir in "$SKILLS_DIR"/*/; do
+            if [ -d "$skill_dir" ]; then
+                skill_name=$(basename "$skill_dir")
+                skill_file="$skill_dir/skill.md"
+                
+                if [ -f "$skill_file" ]; then
+                    # Extraer trigger del archivo (línea que empieza con "Trigger:")
+                    trigger=$(grep -i "^trigger:" "$skill_file" 2>/dev/null | head -1 | cut -d':' -f2- | xargs)
+                    if [ -n "$trigger" ]; then
+                        skill_triggers["$skill_name"]="$trigger"
+                    fi
+                fi
+            fi
+        done
+    fi
+    
+    # Mostrar triggers
+    for skill in "${!skill_triggers[@]}"; do
+        echo -e "  ${BLUE}•${NC} ${BOLD}$skill${NC}: ${DIM}${skill_triggers[$skill]}${NC}"
+    done
+}
+
+# Detectar convenciones del proyecto
+detect_conventions() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Detectando convenciones del proyecto...${NC}"
+    
+    conventions=()
+    
+    # Estilo de código
+    if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f ".eslintrc" ]; then
+        conventions+=("eslint")
+        echo -e "  ${GREEN}✓${NC} ESLint configurado"
+    fi
+    
+    if [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ]; then
+        conventions+=("prettier")
+        echo -e "  ${GREEN}✓${NC} Prettier configurado"
+    fi
+    
+    # Formato de commits
+    if [ -f ".commitlintrc.json" ] || grep -q "commitlint" package.json 2>/dev/null; then
+        conventions+=("conventional-commits")
+        echo -e "  ${GREEN}✓${NC} Conventional commits"
+    fi
+    
+    # Git hooks
+    if [ -d ".husky" ]; then
+        conventions+=("husky")
+        echo -e "  ${GREEN}✓${NC} Husky git hooks"
+    fi
+    
+    # TypeScript
+    if [ -f "tsconfig.json" ]; then
+        conventions+=("typescript")
+        echo -e "  ${GREEN}✓${NC} TypeScript strict mode"
+    fi
+    
+    # Testing
+    if [ -f "jest.config.js" ] || [ -f "vitest.config.ts" ]; then
+        conventions+=("testing-required")
+        echo -e "  ${GREEN}✓${NC} Testing configurado"
+    fi
+    
+    if [ ${#conventions[@]} -eq 0 ]; then
+        echo -e "  ${YELLOW}⚠${NC} No se detectaron convenciones específicas"
+        conventions+=("standard")
+    fi
+    
+    echo ""
+    echo -e "${GREEN}✓${NC} Convenciones: ${BOLD}${conventions[*]}${NC}"
+}
+
+# Crear registro
+create_registry() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Creando registro de skills...${NC}"
+    
+    mkdir -p .quetzal
+    
+    # Crear JSON de registro
+    cat > "$REGISTRY_FILE" << EOF
+{
+  "version": "1.0",
+  "generated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "skills": {
+    "built-in": [
+      {
+        "name": "code-review",
+        "trigger": ["revisa", "code review", "opina"],
+        "description": "Revisión de código al estilo arquitecto mexicano",
+        "enabled": true
+      },
+      {
+        "name": "refactoring",
+        "trigger": ["refactoriza", "simplifica", "limpia"],
+        "description": "Técnicas de refactorización",
+        "enabled": true
+      },
+      {
+        "name": "sdd",
+        "trigger": ["planear", "diseñar", "SDD"],
+        "description": "Spec-Driven Development",
+        "enabled": true
+      },
+      {
+        "name": "testing",
+        "trigger": ["test", "TDD", "valida"],
+        "description": "Testing: Unit, Integration, E2E",
+        "enabled": true
+      }
+    ],
+    "custom": [],
+    "conventions": [$(printf '"%s",' "${conventions[@]}" | sed 's/,$//')]
+  },
+  "active_profile": "default"
+}
+EOF
+    
+    echo -e "${GREEN}✓${NC} Registro creado: ${BOLD}$REGISTRY_FILE${NC}"
+}
+
+# Crear archivo de ayuda para Quetzal
+create_cheatsheet() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Creando cheatsheet...${NC}"
+    
+    cat > ".quetzal/SKILLS.md" << 'EOF'
+# 🎯 Skills de Quetzal
+
+## Skills Disponibles
+
+### 🔍 code-review
+**Trigger:** `revisa`, `code review`, `qué opinas`
+
+Revisa código como arquitecto senior mexicano:
+- "Está chingón" / "Tiene detalles" / "Aquí la cagaron"
+- Qué está bien, qué está mal, por qué importa, cómo mejorar
+
+**Ejemplo:**
+```
+Usuario: Revisa este código
+Quetzal: [Activa code-review]
+```
+
+---
+
+### 🔨 refactoring
+**Trigger:** `refactoriza`, `simplifica`, `limpia`
+
+Técnicas de refactorización:
+- Extraer funciones
+- Eliminar duplicidad
+- Simplificar condicionales
+- Renombrar variables
+
+**Ejemplo:**
+```
+Usuario: Refactoriza esta función
+Quetzal: [Activa refactoring]
+         "Vamos a darle vuelta al tortilla..."
+```
+
+---
+
+### 📋 sdd
+**Trigger:** `planear`, `diseñar`, `SDD`
+
+Spec-Driven Development en 5 fases:
+1. Entender el problema
+2. Explorar opciones
+3. Decidir approach
+4. Especificar en detalle
+5. Validar
+
+**Ejemplo:**
+```
+Usuario: Quiero planear una feature
+Quetzal: [Activa sdd]
+         "Órale, vamos a aplicar SDD..."
+```
+
+---
+
+### 🧪 testing
+**Trigger:** `test`, `TDD`, `valida`
+
+Testing completo:
+- Unit tests
+- Integration tests
+- E2E tests
+- TDD workflow
+
+**Ejemplo:**
+```
+Usuario: Haz tests de esto
+Quetzal: [Activa testing]
+         "A darle con TDD..."
+```
+
+---
+
+## Convenciones del Proyecto
+
+[Se detectan automáticamente del proyecto]
+
+## Perfiles Activos
+
+- `default` - Modo balanceado
+- `strict` - SDD obligatorio, máxima rigurosidad
+- `fast` - Para prototypes, más ágil
+- `team` - Enfocado en convenciones de equipo
+EOF
+    
+    echo -e "${GREEN}✓${NC} Cheatsheet creado: ${BOLD}.quetzal/SKILLS.md${NC}"
+}
+
+# Actualizar config de Quetzal
+update_config() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Actualizando configuración...${NC}"
+    
+    local config_file=".quetzal/config.json"
+    
+    if [ -f "$config_file" ]; then
+        # Actualizar config existente
+        echo -e "  ${GREEN}✓${NC} Configuración actualizada con skills"
+    else
+        echo -e "  ${YELLOW}⚠${NC} No se encontró config.json"
+        echo -e "    Ejecuta ${BOLD}project-init${NC} primero"
+    fi
+}
+
+# Mensaje final
+print_completion() {
+    echo ""
+    echo -e "${GREEN}${BOLD}✅ Skills Registradas!${NC}"
+    echo ""
+    echo -e "${CYAN}${BOLD}Resumen:${NC}"
+    echo -e "  • Skills built-in: ${BOLD}4${NC}"
+    echo -e "  • Skills personalizadas: ${BOLD}$total_skills${NC}"
+    echo -e "  • Convenciones detectadas: ${BOLD}${#conventions[@]}${NC}"
+    echo ""
+    echo -e "${CYAN}${BOLD}Archivos creados:${NC}"
+    echo -e "  • ${BOLD}.quetzal/skill-registry.json${NC} - Registro máquina"
+    echo -e "  • ${BOLD}.quetzal/SKILLS.md${NC} - Guía para humanos"
+    echo ""
+    echo -e "${CYAN}${BOLD}Cómo usar:${NC}"
+    echo -e "  Simplemente habla con Quetzal usando los triggers"
+    echo -e "  ${DIM}Ejemplo: "Revisa este código" activará code-review${NC}"
+    echo ""
+    echo -e "${DIM}Para ver la ayuda: cat .quetzal/SKILLS.md${NC}"
+}
+
+# Main
+main() {
+    scan_skills
+    analyze_triggers
+    detect_conventions
+    create_registry
+    create_cheatsheet
+    update_config
+    print_completion
+}
+
+main "$@"

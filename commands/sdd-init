@@ -1,0 +1,408 @@
+#!/bin/bash
+# =============================================================================
+# Quetzal SDD Init Command
+# Detecta el stack tecnológico y configura Spec-Driven Development
+# =============================================================================
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+echo -e "${CYAN}${BOLD}"
+echo "  🦜 Quetzal SDD Init"
+echo "  ==================="
+echo -e "${NC}"
+echo -e "  ${DIM}Configurando Spec-Driven Development para tu stack${NC}"
+echo ""
+
+# Variables
+SDD_CONFIG=".quetzal/sdd-config.json"
+PROJECT_TYPE="unknown"
+TEST_FRAMEWORK="none"
+HAS_TYPESCRIPT=false
+
+# Detectar stack tecnológico
+detect_stack() {
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Detectando stack tecnológico...${NC}"
+    
+    # JavaScript/TypeScript
+    if [ -f "package.json" ]; then
+        echo -e "${BLUE}[detect]${NC} Analizando package.json..."
+        
+        # Detectar framework
+        if grep -q "\"next\"" package.json 2>/dev/null || grep -q "next/" package.json 2>/dev/null; then
+            PROJECT_TYPE="nextjs"
+            echo -e "  ${GREEN}✓${NC} Next.js detectado"
+        elif grep -q "\"react\"" package.json 2>/dev/null; then
+            if grep -q "\"react-native\"" package.json 2>/dev/null; then
+                PROJECT_TYPE="react-native"
+                echo -e "  ${GREEN}✓${NC} React Native detectado"
+            else
+                PROJECT_TYPE="react"
+                echo -e "  ${GREEN}✓${NC} React detectado"
+            fi
+        elif grep -q "\"vue\"" package.json 2>/dev/null; then
+            PROJECT_TYPE="vue"
+            echo -e "  ${GREEN}✓${NC} Vue.js detectado"
+        elif grep -q "\"@angular\"" package.json 2>/dev/null; then
+            PROJECT_TYPE="angular"
+            echo -e "  ${GREEN}✓${NC} Angular detectado"
+        elif grep -q "\"svelte\"" package.json 2>/dev/null; then
+            PROJECT_TYPE="svelte"
+            echo -e "  ${GREEN}✓${NC} Svelte detectado"
+        elif grep -q "\"express\"" package.json 2>/dev/null; then
+            PROJECT_TYPE="express"
+            echo -e "  ${GREEN}✓${NC} Express.js detectado"
+        else
+            PROJECT_TYPE="nodejs"
+            echo -e "  ${GREEN}✓${NC} Node.js detectado"
+        fi
+        
+        # Detectar TypeScript
+        if [ -f "tsconfig.json" ] || grep -q "typescript" package.json 2>/dev/null; then
+            HAS_TYPESCRIPT=true
+            echo -e "  ${GREEN}✓${NC} TypeScript detectado"
+        fi
+        
+        # Detectar framework de testing
+        if grep -q "\"jest\"" package.json 2>/dev/null; then
+            TEST_FRAMEWORK="jest"
+            echo -e "  ${GREEN}✓${NC} Jest detectado"
+        elif grep -q "\"vitest\"" package.json 2>/dev/null; then
+            TEST_FRAMEWORK="vitest"
+            echo -e "  ${GREEN}✓${NC} Vitest detectado"
+        elif grep -q "\"mocha\"" package.json 2>/dev/null; then
+            TEST_FRAMEWORK="mocha"
+            echo -e "  ${GREEN}✓${NC} Mocha detectado"
+        elif grep -q "\"cypress\"" package.json 2>/dev/null; then
+            TEST_FRAMEWORK="cypress"
+            echo -e "  ${GREEN}✓${NC} Cypress detectado"
+        elif grep -q "\"playwright\"" package.json 2>/dev/null; then
+            TEST_FRAMEWORK="playwright"
+            echo -e "  ${GREEN}✓${NC} Playwright detectado"
+        fi
+    fi
+    
+    # Python
+    if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+        PROJECT_TYPE="python"
+        echo -e "  ${GREEN}✓${NC} Python detectado"
+        
+        if grep -q "pytest" requirements.txt pyproject.toml 2>/dev/null; then
+            TEST_FRAMEWORK="pytest"
+            echo -e "  ${GREEN}✓${NC} Pytest detectado"
+        fi
+    fi
+    
+    # Go
+    if [ -f "go.mod" ]; then
+        PROJECT_TYPE="go"
+        echo -e "  ${GREEN}✓${NC} Go detectado"
+        TEST_FRAMEWORK="go-test"
+        echo -e "  ${GREEN}✓${NC} Go test (built-in)"
+    fi
+    
+    # Rust
+    if [ -f "Cargo.toml" ]; then
+        PROJECT_TYPE="rust"
+        echo -e "  ${GREEN}✓${NC} Rust detectado"
+        TEST_FRAMEWORK="cargo-test"
+        echo -e "  ${GREEN}✓${NC} Cargo test (built-in)"
+    fi
+    
+    echo ""
+    echo -e "${GREEN}${BOLD}Stack detectado:${NC} ${BOLD}$PROJECT_TYPE${NC}"
+    echo -e "${GREEN}${BOLD}Testing:${NC} ${BOLD}$TEST_FRAMEWORK${NC}"
+}
+
+# Crear configuración SDD
+create_sdd_config() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Creando configuración SDD...${NC}"
+    
+    mkdir -p .quetzal
+    
+    cat > "$SDD_CONFIG" << EOF
+{
+  "version": "1.0",
+  "project": {
+    "type": "$PROJECT_TYPE",
+    "typescript": $HAS_TYPESCRIPT,
+    "test_framework": "$TEST_FRAMEWORK",
+    "initialized": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  },
+  "sdd": {
+    "enabled": true,
+    "strict_mode": false,
+    "phases": {
+      "understand": { "required": true, "max_time": "30m" },
+      "explore": { "required": true, "max_time": "20m" },
+      "decide": { "required": true, "max_time": "15m" },
+      "specify": { "required": true, "max_time": "30m" },
+      "validate": { "required": true, "max_time": "15m" }
+    }
+  },
+  "testing": {
+    "required": true,
+    "min_coverage": 70,
+    "e2e_required": false
+  },
+  "conventions": {
+    "naming": "detect_from_project",
+    "structure": "follow_existing",
+    "documentation": "required_for_public_apis"
+  }
+}
+EOF
+    
+    echo -e "${GREEN}✓${NC} Configuración SDD creada: ${BOLD}$SDD_CONFIG${NC}"
+}
+
+# Crear templates SDD
+create_templates() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Creando templates SDD...${NC}"
+    
+    mkdir -p .quetzal/templates
+    
+    # Template de especificación
+    cat > ".quetzal/templates/spec.md" << 'EOF'
+# Especificación: [Nombre de la Feature]
+
+## 1. Entender el Problema
+
+**Contexto actual:**
+[Describir la situación actual]
+
+**Problema a resolver:**
+[¿Qué no funciona o qué falta?]
+
+**Usuario final:**
+[¿Quién usará esto?]
+
+**Éxito se ve como:**
+[¿Cómo sabemos que funcionó?]
+
+## 2. Opciones Exploradas
+
+### Opción A: [Nombre]
+**Descripción:**
+**Pros:**
+- 
+**Contras:**
+- 
+
+### Opción B: [Nombre]
+**Descripción:**
+**Pros:**
+- 
+**Contras:**
+- 
+
+## 3. Decisión
+
+**Opción elegida:** [A/B/C]
+
+**Por qué:**
+
+**Riesgos:**
+- Riesgo 1: [Mitigación]
+
+## 4. Especificación Técnica
+
+### Arquitectura
+[Diagrama o descripción]
+
+### Modelo de Datos
+```
+[Entidades y relaciones]
+```
+
+### APIs/Interfaces
+```
+[Endpoints o funciones públicas]
+```
+
+### Tareas
+- [ ] Tarea 1
+- [ ] Tarea 2
+
+## 5. Testing
+
+**Tests requeridos:**
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] E2E tests (si aplica)
+
+**Cobertura mínima:** 70%
+
+---
+
+**Aprobado por:** @usuario
+**Fecha:** [fecha]
+EOF
+    
+    echo -e "${GREEN}✓${NC} Template de especificación creado"
+}
+
+# Crear ejemplos específicos del stack
+create_stack_examples() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Creando ejemplos para $PROJECT_TYPE...${NC}"
+    
+    mkdir -p .quetzal/examples
+    
+    case "$PROJECT_TYPE" in
+        "react"|"nextjs")
+            cat > ".quetzal/examples/component.tsx" << 'EOF'
+// Ejemplo de componente con testing
+import React from 'react';
+
+interface Props {
+  title: string;
+  onAction: () => void;
+}
+
+export const ExampleComponent: React.FC<Props> = ({ title, onAction }) => {
+  return (
+    <div>
+      <h1>{title}</h1>
+      <button onClick={onAction}>Action</button>
+    </div>
+  );
+};
+EOF
+            ;;
+        "vue")
+            cat > ".quetzal/examples/component.vue" << 'EOF'
+<template>
+  <div>
+    <h1>{{ title }}</h1>
+    <button @click="onAction">Action</button>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  title: String,
+  onAction: Function
+});
+</script>
+EOF
+            ;;
+        "python")
+            cat > ".quetzal/examples/module.py" << 'EOF'
+# Ejemplo de módulo Python con type hints
+from typing import Optional
+
+def process_data(data: dict) -> Optional[dict]:
+    """
+    Procesa los datos y retorna resultado.
+    
+    Args:
+        data: Diccionario con datos de entrada
+        
+    Returns:
+        Diccionario procesado o None si hay error
+    """
+    if not data:
+        return None
+    
+    # Procesamiento
+    return {**data, "processed": True}
+EOF
+            ;;
+        "go")
+            cat > ".quetzal/examples/module.go" << 'EOF'
+// Ejemplo de módulo Go
+package example
+
+// Processor define la interfaz
+ type Processor interface {
+    Process(data map[string]interface{}) (map[string]interface{}, error)
+}
+
+// ProcessData procesa los datos
+func ProcessData(data map[string]interface{}) (map[string]interface{}, error) {
+    if data == nil {
+        return nil, errors.New("data is nil")
+    }
+    
+    result := make(map[string]interface{})
+    for k, v := range data {
+        result[k] = v
+    }
+    result["processed"] = true
+    
+    return result, nil
+}
+EOF
+            ;;
+    esac
+    
+    echo -e "${GREEN}✓${NC} Ejemplos creados para ${BOLD}$PROJECT_TYPE${NC}"
+}
+
+# Activar modo estricto si hay testing
+suggest_strict_mode() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Recomendaciones${NC}"
+    
+    if [ "$TEST_FRAMEWORK" != "none" ]; then
+        echo -e "  ${GREEN}✓${NC} Tienes ${BOLD}$TEST_FRAMEWORK${NC} configurado"
+        echo -e "    Se recomienda activar ${BOLD}Strict TDD Mode${NC}"
+        echo -e "    ${DIM}(Red-green-refactor obligatorio)${NC}"
+    else
+        echo -e "  ${YELLOW}⚠${NC} No se detectó framework de testing"
+        echo -e "    Se recomienda agregar uno:"
+        
+        case "$PROJECT_TYPE" in
+            "react"|"nextjs"|"vue")
+                echo -e "    ${DIM}npm install --save-dev vitest @testing-library/react${NC}"
+                ;;
+            "python")
+                echo -e "    ${DIM}pip install pytest pytest-cov${NC}"
+                ;;
+            "go")
+                echo -e "    ${DIM}Go incluye testing built-in: go test${NC}"
+                ;;
+        esac
+    fi
+}
+
+# Mensaje final
+print_completion() {
+    echo ""
+    echo -e "${GREEN}${BOLD}✅ SDD Configurado!${NC}"
+    echo ""
+    echo -e "${CYAN}${BOLD}Quetzal ahora sabe:${NC}"
+    echo -e "  • Tu stack: ${BOLD}$PROJECT_TYPE${NC}"
+    echo -e "  • Testing: ${BOLD}$TEST_FRAMEWORK${NC}"
+    echo -e "  • Convenciones: ${BOLD}Detectadas automáticamente${NC}"
+    echo ""
+    echo -e "${CYAN}${BOLD}Para crear una feature:${NC}"
+    echo -e "  1. Copia el template: ${BOLD}cp .quetzal/templates/spec.md docs/feature-X.md${NC}"
+    echo -e "  2. Llena la especificación con Quetzal"
+    echo -e "  3. Implementa siguiendo SDD"
+    echo ""
+    echo -e "${DIM}Config: $SDD_CONFIG${NC}"
+}
+
+# Main
+main() {
+    detect_stack
+    create_sdd_config
+    create_templates
+    create_stack_examples
+    suggest_strict_mode
+    print_completion
+}
+
+main "$@"
