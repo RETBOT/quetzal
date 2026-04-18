@@ -133,6 +133,25 @@ Just ask Quetzal anything about a library:
 "What's the new React 19 feature?"
 ```
 
+### 🎯 Skills (Especializaciones)
+Quetzal incluye **skills** especializadas que se activan según el contexto:
+
+| Skill | Trigger | Descripción |
+|-------|---------|-------------|
+| **🔍 code-review** | "Revisa este código" | Revisión de código al estilo arquitecto mexicano |
+| **🔨 refactoring** | "Refactoriza esto" | Técnicas de refactorización con ejemplos |
+| **📋 sdd** | "Planear feature" | Spec-Driven Development (planear antes de codear) |
+| **🧪 testing** | "Haz tests" | Unit, Integration, E2E, TDD |
+
+**Ejemplo:**
+```
+Usuario: "Revisa este código"
+Quetzal: [Activa skill: code-review]
+        "🤔 Tiene detalles..."
+```
+
+Las skills están en `/skills/` y son personalizables.
+
 ---
 
 ## 📋 Requirements
