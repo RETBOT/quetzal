@@ -6,8 +6,8 @@
 
 **AI Architect Agent for OpenCode**
 
-[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](https://github.com/RETBOT/ai-agents)
-[![Shell](https://img.shields.io/badge/shell-Bash%20%7C%20PowerShell%20%7C%20Make-green)](https://github.com/RETBOT/ai-agents)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue)](https://github.com/RETBOT/quetzal)
+[![Shell](https://img.shields.io/badge/shell-Bash%7C%20PowerShell%20%7C%20Make-green)](https://github.com/RETBOT/quetzal)
 [![Engram](https://img.shields.io/badge/Engram-Persistent%20Memory-purple)](https://github.com/Gentleman-Programming/engram)
 [![Context7](https://img.shields.io/badge/Context7-Library%20Docs-orange)](https://context7.com)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
@@ -40,11 +40,13 @@ Quetzal doesn't just write code — it helps you build the *right* thing, the *r
 
 ## 🚀 Quick Start
 
-### One Command (Any Platform)
+> ⚠️ **Nota**: Este proyecto está siendo desarrollado y probado activamente en **Windows**. Otras plataformas: coming soon.
+
+### One Command (Windows)
 
 ```bash
-git clone https://github.com/RETBOT/ai-agents.git
-cd ai-agents
+git clone https://github.com/RETBOT/quetzal.git
+cd quetzal
 ./install.sh
 ```
 
@@ -55,28 +57,20 @@ This installs the complete ecosystem:
 
 ### Platform-Specific
 
-<details>
-<summary>🐧 Linux / macOS / Git Bash</summary>
+Todos los plataformas usan el mismo script:
 
 ```bash
 ./install.sh
 ```
-</details>
 
-<details>
-<summary>🪟 Windows PowerShell</summary>
-
-```powershell
-# Run directly
-.\install.ps1
-
-# Or with bypass (if execution policy blocks)
-powershell -ExecutionPolicy Bypass -File install.ps1
+En Windows, usa **Git Bash** o **WSL**:
+```bash
+./install.sh
 ```
-</details>
 
-<details>
-<summary>🔧 Using Make</summary>
+O con Make (auto-detecta):
+```bash
+make install
 
 ```bash
 make install          # Auto-detect OS and install everything
@@ -279,7 +273,7 @@ Quetzal [ENGRAM]: Saves to persistent memory
 ### Project Structure
 
 ```
-ai-agents/
+quetzal/
 ├── quetzal/
 │   └── QUETZAL.md              # Agent behavior definition
 ├── install.sh                  # Unix installer (Bash)
@@ -394,6 +388,52 @@ Download from [stedolan.github.io/jq](https://stedolan.github.io/jq/download/)
 
 Or manually edit `~/.opencode/agents.json` — see [Manual Configuration](#-manual-configuration).
 </details>
+
+---
+
+## 🔧 Cambios y Modificaciones
+
+Esta sección documenta las personalizaciones realizadas sobre la base de Gentleman AI.
+
+### Estructura de Agentes SDD
+
+Se implementaron 11 agentes SDD (Spec-Driven Development) para el flujo de trabajo estructurado:
+
+| Agente | Propósito |
+|--------|-----------|
+| `sdd-init` | Detectar stack, testing y convenciones del proyecto |
+| `sdd-explore` | Explorar codebase e investigar ideas |
+| `sdd-propose` | Crear propuestas de cambio estructuradas |
+| `sdd-spec` | Escribir especificaciones técnicas detalladas |
+| `sdd-design` | Crear arquitectura y documentos de diseño |
+| `sdd-tasks` | Descomponer especificaciones en tareas |
+| `sdd-apply` | Implementar cambios del código |
+| `sdd-verify` | Validar implementación contra especificaciones |
+| `sdd-archive` | Archivar cambios completados y persistir estado |
+| `sdd-onboard` | Guiar al usuario por el ciclo SDD completo |
+| `sdd-orchestrator` | Coordinar workflows SDD delegando a sub-agentes |
+
+### Configuración de Agentes Ocultos
+
+Los agentes SDD están configurados como `subagent` con `hidden: true` para:
+- Ocultarlos del selector de agentes en la UI
+- Solo ser invocables mediante la herramienta Task por otros agentes
+- Mantener la interfaz limpia mostrando solo Quetzal como agente principal
+
+### Ubicación de Definiciones
+
+Los archivos de definición de agentes se instalan en `~/.config/opencode/agent-defs/` en lugar de `agents/` para:
+- Evitar carga automática de agentes desde archivos .md
+- Controlar la visibilidad desde `opencode.json`
+- Prevenir agentes duplicados en la UI
+
+### Skills Personalizadas
+
+Skills adicionales incluidas:
+- `code-review` — Revisión de código al estilo arquitecto mexicano
+- `refactoring` — Técnicas de refactorización
+- `sdd` — Spec-Driven Development
+- `testing` — Pruebas unitarias, integración y E2E
 
 ---
 
