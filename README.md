@@ -413,12 +413,33 @@ Se implementaron 11 agentes SDD (Spec-Driven Development) para el flujo de traba
 | `sdd-onboard` | Guiar al usuario por el ciclo SDD completo |
 | `sdd-orchestrator` | Coordinar workflows SDD delegando a sub-agentes |
 
-### Configuración de Agentes Ocultos
+### Configuración de Agentes SDD
 
-Los agentes SDD están configurados como `subagent` con `hidden: true` para:
-- Ocultarlos del selector de agentes en la UI
-- Solo ser invocables mediante la herramienta Task por otros agentes
-- Mantener la interfaz limpia mostrando solo Quetzal como agente principal
+Los agentes SDD están configurados mayoritariamente como `subagent` con `hidden: true`, excepto `sdd-orchestrator` que está configurado como `primary` para ser visible y accesible directamente.
+
+| Agente | Mode | Hidden | Propósito |
+|--------|------|--------|-----------|
+| `quetzal` | primary | No | Agente principal |
+| `sdd-orchestrator` | primary | No | Coordinador SDD |
+| `sdd-init` | subagent | Sí | Detectar stack/testing |
+| `sdd-explore` | subagent | Sí | Explorar codebase |
+| `sdd-propose` | subagent | Sí | Crear propuestas |
+| `sdd-spec` | subagent | Sí | Especificaciones |
+| `sdd-design` | subagent | Sí | Arquitectura/diseño |
+| `sdd-tasks` | subagent | Sí | Descomponer tareas |
+| `sdd-apply` | subagent | Sí | Implementar cambios |
+| `sdd-verify` | subagent | Sí | Validar implementación |
+| `sdd-archive` | subagent | Sí | Archivar cambios |
+| `sdd-onboard` | subagent | Sí | Guiar ciclo SDD |
+
+**Herramientas por agente:**
+- **Quetzal**: bash, read, write, edit, delegate
+- **sdd-orchestrator**: bash, read, write, edit, delegate
+- **sdd-init**: bash, read
+- **sdd-explore**: read
+- **sdd-apply**: bash, read, write, edit
+- **sdd-verify**: bash, read
+- **sdd-onboard**: bash, read, write, edit
 
 ### Ubicación de Definiciones
 
