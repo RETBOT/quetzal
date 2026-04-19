@@ -40,7 +40,7 @@ Quetzal doesn't just write code — it helps you build the *right* thing, the *r
 
 ## 🚀 Quick Start
 
-> ⚠️ **Nota**: Este proyecto está siendo desarrollado y probado activamente en **Windows**. Otras plataformas: coming soon.
+> ⚠️ **Note**: This project is actively being developed and tested on **Windows**. Other platforms: coming soon.
 
 ### One Command (Windows)
 
@@ -57,13 +57,13 @@ This installs the complete ecosystem:
 
 ### Platform-Specific
 
-Todos los plataformas usan el mismo script:
+All platforms use the same script:
 
 ```bash
 ./install.sh
 ```
 
-En Windows, usa **Git Bash** o **WSL**:
+On Windows, use **Git Bash** or **WSL**:
 ```bash
 ./install.sh
 ```
@@ -127,66 +127,66 @@ Just ask Quetzal anything about a library:
 "What's the new React 19 feature?"
 ```
 
-### 🎯 Skills (Especializaciones)
-Quetzal incluye **skills** especializadas que se activan según el contexto:
+### 🎯 Skills (Specializations)
+Quetzal includes specialized **skills** that activate based on context:
 
-| Skill | Trigger | Descripción |
+| Skill | Trigger | Description |
 |-------|---------|-------------|
-| **🔍 code-review** | "Revisa este código" | Revisión de código al estilo arquitecto mexicano |
-| **🔨 refactoring** | "Refactoriza esto" | Técnicas de refactorización con ejemplos |
-| **📋 sdd** | "Planear feature" | Spec-Driven Development (planear antes de codear) |
-| **🧪 testing** | "Haz tests" | Unit, Integration, E2E, TDD |
+| **🔍 code-review** | "Review this code" | Code review in Mexican architect style |
+| **🔨 refactoring** | "Refactor this" | Refactoring techniques with examples |
+| **📋 sdd** | "Plan feature" | Spec-Driven Development (plan before coding) |
+| **🧪 testing** | "Run tests" | Unit, Integration, E2E, TDD |
 
-**Ejemplo:**
+**Example:**
 ```
-Usuario: "Revisa este código"
-Quetzal: [Activa skill: code-review]
-        "🤔 Tiene detalles..."
+User: "Review this code"
+Quetzal: [Activates skill: code-review]
+        "🤔 Has some details..."
 ```
 
-Las skills están en `/skills/` y son personalizables.
+Skills are in `/skills/` and are customizable.
 
-### 🚀 Comandos de Proyecto (Pack Esencial)
-Comandos que configuran y gestionan tu proyecto:
+### 🚀 Project Commands (Essential Pack)
+Commands that configure and manage your project:
 
 ```bash
-./commands/project-init      # Inicializa proyecto con Quetzal
-./commands/sdd-init          # Detecta stack y configura SDD
-./commands/skill-registry    # Escanea y registra skills disponibles
+./commands/project-init      # Initialize project with Quetzal
+./commands/sdd-init          # Detect stack and configure SDD
+./commands/skill-registry    # Scan and register available skills
 ```
 
-**Ejemplo de uso:**
+**Usage example:**
 ```bash
-cd mi-proyecto
-../quetzal/commands/project-init    # Configura Quetzal
-../quetzal/commands/sdd-init        # Detecta React/Node/etc
-../quetzal/commands/skill-registry  # Registra skills
+cd my-project
+../quetzal/commands/project-init    # Configure Quetzal
+../quetzal/commands/sdd-init        # Detect React/Node/etc
+../quetzal/commands/skill-registry  # Register skills
 ```
 
-### 📋 Workflows (Flujos de Trabajo)
-Workflows predefinidos para situaciones comunes:
+### 📋 Workflows (Work Flows)
+Predefined workflows for common situations:
 
-| Workflow | Descripción | Archivo |
+| Workflow | Description | File |
 |----------|-------------|---------|
-| **feature-workflow** | Crear nueva feature con SDD completo | `workflows/feature-workflow.md` |
-| **bugfix-workflow** | Arreglar bugs con análisis root cause | `workflows/bugfix-workflow.md` |
-| **refactor-workflow** | Refactorización segura paso a paso | `workflows/refactor-workflow.md` |
-| **pr-workflow** | Crear y revisar Pull Requests | `workflows/pr-workflow.md` |
+| **feature-workflow** | Create new feature with full SDD | `workflows/feature-workflow.md` |
+| **bugfix-workflow** | Fix bugs with root cause analysis | `workflows/bugfix-workflow.md` |
+| **refactor-workflow** | Safe refactoring step by step | `workflows/refactor-workflow.md` |
+| **pr-workflow** | Create and review Pull Requests | `workflows/pr-workflow.md` |
 
-### 🎛️ Presets (Modos de Operación)
-Presets para diferentes contextos:
+### 🎛️ Presets (Operating Modes)
+Presets for different contexts:
 
-| Preset | Descripción | Cuándo usar |
+| Preset | Description | When to use |
 |--------|-------------|-------------|
-| **strict-mode** | Máxima rigurosidad (80% coverage, SDD obligatorio) | Enterprise, código crítico |
-| **fast-mode** | Ágil y pragmático (60% coverage, flexible) | MVPs, prototypes |
-| **team-mode** | Balanceado con convenciones de equipo | Equipos 3-10 devs |
+| **strict-mode** | Maximum rigor (80% coverage, SDD required) | Enterprise, critical code |
+| **fast-mode** | Agile and pragmatic (60% coverage, flexible) | MVPs, prototypes |
+| **team-mode** | Balanced with team conventions | Teams 3-10 devs |
 
-**Cambiar preset:**
+**Change preset:**
 ```bash
-# En .quetzal/config.json
+# In .quetzal/config.json
 {
-  "mode": "strict"  # o "fast", "team"
+  "mode": "strict"  # or "fast", "team"
 }
 ```
 
@@ -391,48 +391,48 @@ Or manually edit `~/.opencode/agents.json` — see [Manual Configuration](#-manu
 
 ---
 
-## 🔧 Cambios y Modificaciones
+## 🔧 Changes and Modifications
 
-Esta sección documenta las personalizaciones realizadas sobre la base de Gentleman AI.
+This section documents customizations made on top of Gentleman AI base.
 
-### Estructura de Agentes SDD
+### SDD Agent Structure
 
-Se implementaron 11 agentes SDD (Spec-Driven Development) para el flujo de trabajo estructurado:
+11 SDD agents (Spec-Driven Development) were implemented for structured workflow:
 
-| Agente | Propósito |
+| Agent | Purpose |
 |--------|-----------|
-| `sdd-init` | Detectar stack, testing y convenciones del proyecto |
-| `sdd-explore` | Explorar codebase e investigar ideas |
-| `sdd-propose` | Crear propuestas de cambio estructuradas |
-| `sdd-spec` | Escribir especificaciones técnicas detalladas |
-| `sdd-design` | Crear arquitectura y documentos de diseño |
-| `sdd-tasks` | Descomponer especificaciones en tareas |
-| `sdd-apply` | Implementar cambios del código |
-| `sdd-verify` | Validar implementación contra especificaciones |
-| `sdd-archive` | Archivar cambios completados y persistir estado |
-| `sdd-onboard` | Guiar al usuario por el ciclo SDD completo |
-| `sdd-orchestrator` | Coordinar workflows SDD delegando a sub-agentes |
+| `sdd-init` | Detect stack, testing, and project conventions |
+| `sdd-explore` | Explore codebase and investigate ideas |
+| `sdd-propose` | Create structured change proposals |
+| `sdd-spec` | Write detailed technical specifications |
+| `sdd-design` | Create architecture and design documents |
+| `sdd-tasks` | Break down specifications into tasks |
+| `sdd-apply` | Implement code changes |
+| `sdd-verify` | Validate implementation against specifications |
+| `sdd-archive` | Archive completed changes and persist state |
+| `sdd-onboard` | Guide user through full SDD cycle |
+| `sdd-orchestrator` | Coordinate SDD workflows delegating to sub-agents |
 
-### Configuración de Agentes SDD
+### SDD Agent Configuration
 
-Los agentes SDD están configurados mayoritariamente como `subagent` con `hidden: true`, excepto `sdd-orchestrator` que está configurado como `primary` para ser visible y accesible directamente.
+SDD agents are mostly configured as `subagent` with `hidden: true`, except `sdd-orchestrator` which is configured as `primary` to be visible and directly accessible.
 
-| Agente | Mode | Hidden | Propósito |
+| Agent | Mode | Hidden | Purpose |
 |--------|------|--------|-----------|
-| `quetzal` | primary | No | Agente principal |
-| `sdd-orchestrator` | primary | No | Coordinador SDD |
-| `sdd-init` | subagent | Sí | Detectar stack/testing |
-| `sdd-explore` | subagent | Sí | Explorar codebase |
-| `sdd-propose` | subagent | Sí | Crear propuestas |
-| `sdd-spec` | subagent | Sí | Especificaciones |
-| `sdd-design` | subagent | Sí | Arquitectura/diseño |
-| `sdd-tasks` | subagent | Sí | Descomponer tareas |
-| `sdd-apply` | subagent | Sí | Implementar cambios |
-| `sdd-verify` | subagent | Sí | Validar implementación |
-| `sdd-archive` | subagent | Sí | Archivar cambios |
-| `sdd-onboard` | subagent | Sí | Guiar ciclo SDD |
+| `quetzal` | primary | No | Main agent |
+| `sdd-orchestrator` | primary | No | SDD Coordinator |
+| `sdd-init` | subagent | Yes | Detect stack/testing |
+| `sdd-explore` | subagent | Yes | Explore codebase |
+| `sdd-propose` | subagent | Yes | Create proposals |
+| `sdd-spec` | subagent | Yes | Specifications |
+| `sdd-design` | subagent | Yes | Architecture/design |
+| `sdd-tasks` | subagent | Yes | Break down tasks |
+| `sdd-apply` | subagent | Yes | Implement changes |
+| `sdd-verify` | subagent | Yes | Validate implementation |
+| `sdd-archive` | subagent | Yes | Archive changes |
+| `sdd-onboard` | subagent | Yes | Guide SDD cycle |
 
-**Herramientas por agente:**
+**Tools per agent:**
 - **Quetzal**: bash, read, write, edit, delegate
 - **sdd-orchestrator**: bash, read, write, edit, delegate
 - **sdd-init**: bash, read
@@ -441,20 +441,20 @@ Los agentes SDD están configurados mayoritariamente como `subagent` con `hidden
 - **sdd-verify**: bash, read
 - **sdd-onboard**: bash, read, write, edit
 
-### Ubicación de Definiciones
+### Agent Definition Location
 
-Los archivos de definición de agentes se instalan en `~/.config/opencode/agent-defs/` en lugar de `agents/` para:
-- Evitar carga automática de agentes desde archivos .md
-- Controlar la visibilidad desde `opencode.json`
-- Prevenir agentes duplicados en la UI
+Agent definition files are installed in `~/.config/opencode/agent-defs/` instead of `agents/` to:
+- Avoid automatic agent loading from .md files
+- Control visibility from `opencode.json`
+- Prevent duplicate agents in the UI
 
-### Skills Personalizadas
+### Custom Skills
 
-Skills adicionales incluidas:
-- `code-review` — Revisión de código al estilo arquitecto mexicano
-- `refactoring` — Técnicas de refactorización
+Additional skills included:
+- `code-review` — Code review in Mexican architect style
+- `refactoring` — Refactoring techniques
 - `sdd` — Spec-Driven Development
-- `testing` — Pruebas unitarias, integración y E2E
+- `testing` — Unit, integration, and E2E testing
 
 ---
 
