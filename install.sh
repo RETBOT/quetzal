@@ -348,6 +348,8 @@ install_opencode_plugin() {
 }
 
 # Copy skills to global OpenCode directory
+# Skills use the native OpenCode format: skills/<name>/SKILL.md (YAML frontmatter).
+# OpenCode discovers them automatically from ~/.config/opencode/skills/.
 install_skills_global() {
     echo ""
     echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Installing Skills Globally${NC}"
@@ -541,77 +543,102 @@ install_agent() {
 configure_mcp_servers() {
     echo ""
     echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Configuring MCP Servers${NC}"
-    
-    local MCP_CONFIG="$MCP_CONFIG_DIR/servers.json"
-    
-    # Create MCP servers config
-    mkdir -p "$MCP_CONFIG_DIR"
-    
-    cat > "$MCP_CONFIG" << EOF
-{
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "env": {
-        "CONTEXT7_API_KEY": ""
-      }
-    }$(if [ -x "$ENGRAM_BIN" ] || command -v engram &>/dev/null; then echo ",
-    \"engram\": {
-      \"command\": \"engram\",
-      \"args\": [\"mcp\"]
-    }"; fi)
-  }
-}
-EOF
-    
-    echo -e "${GREEN}✓${NC} MCP servers configured"
-    echo -e "${DIM}Location: $MCP_CONFIG${NC}"
+    echo -e "${GREEN}✓${NC} MCP servers are configured natively in ${DIM}opencode.json${NC}"
+    echo -e "${DIM}  (under \"mcp\": context7 / engram)${NC}"
+    echo -e "${DIM}  The legacy ~/.config/opencode/mcp/servers.json is no longer written.${NC}"
 }
 
-# Configure OpenCode agent
-configure_opencode() {
-    echo ""
-    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Configuring OpenCode Agent${NC}"
+# ─────────────────────────────────────────────
+# Smart merge: preserve existing opencode.json,
+# update only agents + MCP + permissions
+# ─────────────────────────────────────────────
+merge_opencode_config() {
+    local TMP_DEFAULT="$CONFIG_PATH.quetzal-merge-tmp.json"
     
-    # Check what's installed
-    local HAS_CONTEXT7=false
-    local HAS_ENGRAM=false
+    # Generate the Quetzal default config to a temp file
+    generate_quetzal_default "$TMP_DEFAULT"
     
-    if command -v ctx7 &>/dev/null || command -v npx &>/dev/null; then
-        HAS_CONTEXT7=true
-        echo -e "${BLUE}[debug]${NC} context7 detected: $HAS_CONTEXT7"
+    if [ ! -f "$TMP_DEFAULT" ]; then
+        echo -e "${RED}❌ Failed to generate Quetzal default config${NC}"
+        return 1
     fi
     
-    if [ -x "$ENGRAM_BIN" ] || command -v engram &>/dev/null; then
-        HAS_ENGRAM=true
-        echo -e "${BLUE}[debug]${NC} engram detected: $HAS_ENGRAM"
-    fi
-    
-    # Ensure directory exists
-    mkdir -p "$(dirname "$CONFIG_PATH")"
-    
-    # Check if config exists and has valid content
-    local NEED_CREATE=true
-    if [ -f "$CONFIG_PATH" ] && [ -s "$CONFIG_PATH" ]; then
-        if grep -q '"agent"' "$CONFIG_PATH" 2>/dev/null; then
-            NEED_CREATE=false
-            echo -e "${BLUE}[config]${NC} Existing OpenCode config found, keeping it..."
-            echo -e "${GREEN}✓${NC} quetzal agent already configured"
+    # Use Python for safe JSON deep merge
+    if command -v python3 &>/dev/null || command -v python &>/dev/null; then
+        local PY=$(command -v python3 || command -v python)
+        
+        "$PY" - "$CONFIG_PATH" "$TMP_DEFAULT" "$CONFIG_PATH" <<'PYEOF'
+import json, sys
+
+def deep_merge(a, b):
+    """Deep merge: b wins, but preserve a's keys not present in b."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        result = dict(a)
+        for k, v in b.items():
+            if k in result:
+                result[k] = deep_merge(result[k], v)
+            else:
+                result[k] = v
+        return result
+    return b
+
+existing_path, new_path, out_path = sys.argv[1], sys.argv[2], sys.argv[3]
+try:
+    with open(existing_path, 'r', encoding='utf-8') as f:
+        existing = json.load(f)
+    with open(new_path, 'r', encoding='utf-8') as f:
+        new_default = json.load(f)
+
+    merged = deep_merge(existing, new_default)
+
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(merged, f, indent=2, ensure_ascii=False)
+        f.write('\n')
+
+    # Report what was preserved
+    preserved = [k for k in existing if k not in ('agent', '$schema', 'disabled_providers')]
+    print(f"Merged OK. Preserved keys: {', '.join(preserved) if preserved else '(none)'}")
+except Exception as e:
+    print(f"Merge FAILED: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+        
+        local MERGE_STATUS=$?
+        rm -f "$TMP_DEFAULT"
+        
+        if [ $MERGE_STATUS -eq 0 ]; then
+            echo -e "${GREEN}✓${NC} opencode.json merged successfully"
+            echo -e "${DIM}  Providers, MCP, permissions → preserved${NC}"
+            echo -e "${DIM}  Agents → updated to latest Quetzal version${NC}"
+            return 0
+        else
+            echo -e "${RED}❌ Python merge failed — keeping existing config unchanged${NC}"
+            return 1
         fi
+    else
+        echo -e "${YELLOW}⚠${NC} Python not available — keeping existing opencode.json unchanged"
+        echo -e "${DIM}  Install Python3 for smart merge support${NC}"
+        rm -f "$TMP_DEFAULT"
+        return 0
     fi
+}
+
+# ─────────────────────────────────────────────
+# Generate the full Quetzal default opencode.json
+# (used for fresh installs AND for merge)
+# ─────────────────────────────────────────────
+generate_quetzal_default() {
+    local OUTPUT_PATH="$1"
+    # Temporarily redirect all printf output to OUTPUT_PATH
+    local _ORIG_CONFIG_PATH="$CONFIG_PATH"
+    CONFIG_PATH="$OUTPUT_PATH"
     
-    if [ "$NEED_CREATE" = true ]; then
-        # Create new full config with MCP servers
-        echo -e "${BLUE}[config]${NC} Creating new OpenCode configuration..."
-        
-        # Build MCP section based on what's installed
-        local MCP_BLOCK=""
-        # Convert Windows backslashes to double backslashes for JSON
-        local ENGRAM_BIN_ESCAPED=$(echo "$ENGRAM_BIN" | sed 's/\\/\\\\/g')
-        
-        if [ "$HAS_CONTEXT7" = true ] && [ "$HAS_ENGRAM" = true ]; then
-            MCP_BLOCK="  \"mcp\": {
+    # Build MCP section based on what's installed
+    local MCP_BLOCK=""
+    local ENGRAM_BIN_ESCAPED=$(echo "$ENGRAM_BIN" | sed 's/\\/\\\\/g')
+    
+    if [ "$HAS_CONTEXT7" = true ] && [ "$HAS_ENGRAM" = true ]; then
+        MCP_BLOCK="  \"mcp\": {
     \"context7\": {
       \"type\": \"remote\",
       \"url\": \"https://mcp.context7.com/mcp\",
@@ -622,22 +649,22 @@ configure_opencode() {
       \"command\": [\"$ENGRAM_BIN_ESCAPED\", \"mcp\", \"--tools=agent\"]
     }
   },"
-        elif [ "$HAS_CONTEXT7" = true ]; then
-            MCP_BLOCK="  \"mcp\": {
+    elif [ "$HAS_CONTEXT7" = true ]; then
+        MCP_BLOCK="  \"mcp\": {
     \"context7\": {
       \"type\": \"remote\",
       \"url\": \"https://mcp.context7.com/mcp\",
       \"enabled\": true
     }
   },"
-        elif [ "$HAS_ENGRAM" = true ]; then
-            MCP_BLOCK="  \"mcp\": {
+    elif [ "$HAS_ENGRAM" = true ]; then
+        MCP_BLOCK="  \"mcp\": {
     \"engram\": {
       \"type\": \"local\",
       \"command\": [\"$ENGRAM_BIN_ESCAPED\", \"mcp\", \"--tools=agent\"]
     }
   },"
-        fi
+    fi
         
         # Use printf to create the entire JSON at once (no heredoc issues)
         printf '{\n' > "$CONFIG_PATH"
@@ -859,6 +886,42 @@ configure_opencode() {
         printf '    }\n' >> "$CONFIG_PATH"
         printf '  }\n' >> "$CONFIG_PATH"
         printf '}\n' >> "$CONFIG_PATH"
+    
+    # Restore original CONFIG_PATH
+    CONFIG_PATH="$_ORIG_CONFIG_PATH"
+}
+
+# ─────────────────────────────────────────────
+# Configure OpenCode agent (smart merge or create)
+# ─────────────────────────────────────────────
+configure_opencode() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Configuring OpenCode Agent${NC}"
+    
+    # Check what's installed
+    local HAS_CONTEXT7=false
+    local HAS_ENGRAM=false
+    
+    if command -v ctx7 &>/dev/null || command -v npx &>/dev/null; then
+        HAS_CONTEXT7=true
+        echo -e "${BLUE}[debug]${NC} context7 detected: $HAS_CONTEXT7"
+    fi
+    
+    if [ -x "$ENGRAM_BIN" ] || command -v engram &>/dev/null; then
+        HAS_ENGRAM=true
+        echo -e "${BLUE}[debug]${NC} engram detected: $HAS_ENGRAM"
+    fi
+    
+    # Ensure directory exists
+    mkdir -p "$(dirname "$CONFIG_PATH")"
+    
+    # Smart merge if config exists with agents, otherwise create fresh
+    if [ -f "$CONFIG_PATH" ] && [ -s "$CONFIG_PATH" ] && grep -q '"agent"' "$CONFIG_PATH" 2>/dev/null; then
+        echo -e "${BLUE}[config]${NC} Found existing opencode.json → smart merge (preserving providers/permissions)..."
+        merge_opencode_config
+    else
+        echo -e "${BLUE}[config]${NC} Creating new OpenCode configuration..."
+        generate_quetzal_default "$CONFIG_PATH"
     fi
     
     if [ -f "$CONFIG_PATH" ]; then
@@ -915,16 +978,16 @@ print_completion() {
     
     # Verify agent installation
     if [ -f "$INSTALL_DIR/$AGENT_NAME/QUETZAL.md" ]; then
-        echo -e "  ${GREEN}✓${NC} Quetzal Agent → ~/.config/opencode/agents/quetzal/"
+        echo -e "  ${GREEN}✓${NC} Quetzal Agent → ~/.config/opencode/agent-defs/quetzal/"
     else
         echo -e "  ${RED}✗${NC} Quetzal Agent → Installation failed"
     fi
     
-    # Verify MCP config
-    if [ -f "$MCP_CONFIG_DIR/servers.json" ]; then
-        echo -e "  ${GREEN}✓${NC} MCP Servers → ~/.config/opencode/mcp/servers.json"
+    # Verify MCP config (native: "mcp" block inside opencode.json)
+    if [ -f "$CONFIG_PATH" ] && grep -q '"mcp"' "$CONFIG_PATH" 2>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} MCP Servers → configured in opencode.json"
     else
-        echo -e "  ${YELLOW}○${NC} MCP Servers → Not configured"
+        echo -e "  ${YELLOW}○${NC} MCP Servers → Not configured (optional)"
     fi
     
     # Verify agent config
@@ -971,7 +1034,7 @@ print_completion() {
     echo ""
     echo -e "${CYAN}${BOLD}Configuration Files:${NC}"
     echo -e "  ${DIM}Agent: $INSTALL_DIR/$AGENT_NAME/${NC}"
-    echo -e "  ${DIM}MCP: $MCP_CONFIG_DIR/servers.json${NC}"
+    echo -e "  ${DIM}MCP: embedded in $CONFIG_PATH${NC}"
     echo -e "  ${DIM}Config: $CONFIG_PATH${NC}"
 }
 

@@ -95,6 +95,46 @@ EOF
     echo -e "${GREEN}✓${NC} Configuración creada (.quetzal/config.json)"
 }
 
+# Crear AGENTS.md (reglas del proyecto para OpenCode)
+create_agents_md() {
+    echo ""
+    echo -e "${CYAN}${BOLD}==>${NC} ${BOLD}Creando AGENTS.md...${NC}"
+
+    # No sobrescribir un AGENTS.md existente
+    if [ -f "AGENTS.md" ]; then
+        echo -e "${YELLOW}⚠${NC} AGENTS.md ya existe, se conserva"
+        return 0
+    fi
+
+    cat > AGENTS.md << EOF
+# Reglas del Proyecto
+
+Instrucciones específicas de este proyecto para el agente. Quetzal las lee automáticamente (OpenCode carga AGENTS.md). Llena cada sección; lo que quede vacío se ignora.
+> IMPORTANTE: TODO lo que sea específico del proyecto va aquí, NO en el prompt del agente (quetzal/QUETZAL.md).
+
+## Stack y estructura
+- Lenguaje/framework principal: [pendiente]
+- Estructura de carpetas / organización de módulos: [pendiente]
+
+## Convenciones de código
+- Estilo / formateo / linting: [pendiente]
+- Naming y patrones aceptados: [pendiente]
+- Patrones rechazados: [pendiente]
+
+## Testing
+- Comando para correr tests: [pendiente]
+- Framework y coverage objetivo: [pendiente]
+
+## Restricciones y seguridad
+- No comprometer secretos (.env, credenciales, llaves). No leer archivos sensibles.
+- No ejecutar operaciones destructivas (borrar archivos, migraciones, reset --hard) sin confirmación.
+- No asumir push a remoto.
+- No sobrescribir cambios que no sean del agente.
+EOF
+
+    echo -e "${GREEN}✓${NC} AGENTS.md creado (template de reglas del proyecto)"
+}
+
 # Crear .engram para el proyecto
 setup_engram() {
     echo ""
@@ -157,8 +197,10 @@ print_completion() {
     echo -e "  1. ${BOLD}./sdd-init${NC}     → Configurar SDD para tu stack"
     echo -e "  2. ${BOLD}skill-registry${NC} → Registrar skills disponibles"
     echo -e "  3. ${BOLD} Abrir OpenCode${NC} → Empezar a trabajar con Quetzal"
+    echo -e "  4. ${BOLD}Llenar AGENTS.md${NC} → Convenciones y tests del proyecto"
     echo ""
     echo -e "${DIM}Config: .quetzal/config.json${NC}"
+    echo -e "${DIM}Reglas: AGENTS.md${NC}"
     echo -e "${DIM}Docs: https://github.com/RETBOT/quetzal${NC}"
 }
 
@@ -166,6 +208,7 @@ print_completion() {
 main() {
     detect_project
     create_structure
+    create_agents_md
     setup_engram
     setup_git_hooks
     print_completion

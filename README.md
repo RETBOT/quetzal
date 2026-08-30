@@ -22,19 +22,20 @@
 
 ## ✨ What is Quetzal?
 
-Quetzal is a **principal architect AI agent** that brings discipline and strategic thinking to your development workflow. Unlike agents that jump straight to implementation, Quetzal:
+Quetzal is a **principal architect AI agent** that brings discipline and strategic thinking to your development workflow. Unlike agents that over-eagerly jump to implementation, Quetzal:
 
 - 🎯 **Challenges assumptions** — Questions your approach before committing
 - 📐 **Designs first** — Architects solutions before writing code
 - 🔍 **Reviews critically** — Analyzes and improves existing code
-- 🏗️ **Enforces best practices** — SOLID, DRY, KISS are not optional
+- ⚖️ **Acts with judgment** — Autonomous when it can be, prudent when it must be
+- 🧩 **Avoids dogma** — Applies patterns only when they solve a real problem, not by default
 - 🚀 **Optimizes for scale** — Builds systems that grow gracefully
 
 ### Philosophy
 
-> **Code is the last step. Thinking comes first.**
+> **Think first, then act — and verify what you change.**
 
-Quetzal doesn't just write code — it helps you build the *right* thing, the *right* way.
+Quetzal doesn't just write code — it helps you build the *right* thing, the *right* way. It asks only the questions that change the outcome, and verifies its own work before claiming success.
 
 ---
 
@@ -89,10 +90,11 @@ Quetzal comes with a complete AI development ecosystem, inspired by [Gentleman A
 The core architect agent that brings discipline to your coding workflow.
 
 **Features:**
-- Three operating modes: PLAN → BUILD → REVIEW
-- Challenges decisions before implementation
-- Enforces architectural best practices
-- Optimizes for scalability and maintainability
+- Adaptive workflow: THINK → EXPLORE → PLAN → BUILD → VERIFY → REVIEW
+- Acts autonomously when appropriate, asks only when it matters
+- Detects overengineering and technical debt without dogmatic patterns
+- Verifies its own changes (tests/build/lint) before declaring success
+- Explicit security, Git, and evidence-based debugging policies
 
 ### 💾 Engram (Persistent Memory)
 [Engram](https://github.com/Gentleman-Programming/engram) remembers decisions, bugs, and context across sessions.
@@ -128,23 +130,18 @@ Just ask Quetzal anything about a library:
 ```
 
 ### 🎯 Skills (Specializations)
-Quetzal includes specialized **skills** that activate based on context:
+Quetzal includes specialized **skills** in the native OpenCode format (`SKILL.md` with YAML frontmatter). OpenCode discovers them automatically from the skills directories — no manual triggers needed.
 
-| Skill | Trigger | Description |
-|-------|---------|-------------|
-| **🔍 code-review** | "Review this code" | Code review in Mexican architect style |
-| **🔨 refactoring** | "Refactor this" | Refactoring techniques with examples |
-| **📋 sdd** | "Plan feature" | Spec-Driven Development (plan before coding) |
-| **🧪 testing** | "Run tests" | Unit, Integration, E2E, TDD |
+| Skill | Frontmatter `name` | When to use |
+|-------|--------------------|-------------|
+| **🔍 code-review** | `code-review` | "Review this code" |
+| **🔨 refactoring** | `refactoring` | "Refactor this", "simplify this" |
+| **📋 sdd** | `sdd` | "Plan a feature", "design this" |
+| **🧪 testing** | `testing` | "Run tests", "TDD", "coverage" |
 
-**Example:**
-```
-User: "Review this code"
-Quetzal: [Activates skill: code-review]
-        "🤔 Has some details..."
-```
+Quetzal invokes the matching skill with the `skill` tool based on its `description`.
 
-Skills are in `/skills/` and are customizable.
+Skills live in `/skills/<name>/SKILL.md` and are customizable. On install they are copied to `~/.config/opencode/skills/` for global discovery.
 
 ### 🚀 Project Commands (Essential Pack)
 Commands that configure and manage your project:
@@ -218,34 +215,44 @@ Both are **optional** — Quetzal functions as a standalone agent.
 
 ---
 
-## 🎭 Operating Modes
+## 🎭 How Quetzal Decides
 
-Quetzal adapts its behavior based on context:
+Quetzal adapts behavior based on task type and risk. It acts autonomously when it can
+and asks for confirmation only when it should.
 
-| Mode | Trigger | Behavior |
-|------|---------|----------|
-| **PLAN** | `plan`, `design`, `architect` | Analyzes, questions, designs solutions |
-| **BUILD** | `build`, `implement`, `code` | Implements after approval |
-| **REVIEW** | `review`, `analyze`, `improve` | Critiques and improves code |
+| Task type | Quetzal behavior |
+|-----------|------------------|
+| Conversation / analysis / review / research | No file changes, analyzes and responds |
+| Trivial change (typo, rename, 1-line fix, docs) | Acts directly if intent is obvious, then verifies |
+| Small-moderate change, clearly requested | Acts directly, verifies, reports what changed |
+| Relevant / architectural / multi-file | Brief plan; medium risk proceeds with verification, high risk asks confirmation |
+| Explicit implementation request | Implements and verifies, no re-asking |
+| Debugging | Evidence-based workflow, fixes when root cause is clear |
+| Refactoring | Safe and incremental with tests; asks if large or no tests |
+
+**Risk levels:** **Low** (local, reversible) → act. **Medium** (logic, multi-file) → act if intent is clear, verify. **High** (destructive, irreversible, secrets, mass, production) → confirm.
 
 ### Example Interactions
 
 ```
 User: "Plan an authentication system"
-Quetzal [PLAN]: Analyzes requirements, proposes architecture, 
-                questions trade-offs before any code
+Quetzal: Understands, explores, presents a brief plan with real alternatives,
+         and asks only the questions that change the implementation
 
-User: "Build the auth module"  
-Quetzal [BUILD]: Implements based on approved design
+User: "Build the auth module"
+Quetzal: Implements and verifies. Doesn't re-ask for permission.
 
 User: "Review this code"
-Quetzal [REVIEW]: Analyzes, suggests improvements, flags issues
+Quetzal: Analyzes, suggests improvements, flags issues. Doesn't modify files.
+
+User: "Fix this typo in the README"
+Quetzal: Fixes it directly and confirms what changed.
 
 User: "How do I use React useEffect?"
-Quetzal [CONTEXT7]: Fetches latest React docs and explains
+Quetzal: Consults Context7 only if the API/version matters, or explains from knowledge.
 
 User: "Remember we decided to use TypeScript strict"
-Quetzal [ENGRAM]: Saves to persistent memory
+Quetzal: Saves the architectural decision to Engram.
 ```
 
 ---
@@ -275,14 +282,23 @@ Quetzal [ENGRAM]: Saves to persistent memory
 ```
 quetzal/
 ├── quetzal/
-│   └── QUETZAL.md              # Agent behavior definition
+│   └── QUETZAL.md              # Agent behavior (compact prompt)
+├── skills/
+│   ├── code-review/SKILL.md    # Native OpenCode skills
+│   ├── refactoring/SKILL.md
+│   ├── sdd/SKILL.md
+│   └── testing/SKILL.md
+├── agents/                     # SDD sub-agents (sdd-*)
+├── commands/                   # project-init, sdd-init, skill-registry
+├── workflows/                  # feature, bugfix, refactor, pr
+├── presets/                    # strict, fast, team
 ├── install.sh                  # Unix installer (Bash)
-├── install.ps1                 # Windows installer (PowerShell)
 ├── Makefile                    # Universal installer
-├── .engram/                    # Project memory (created on install)
-│   └── project.json
 └── README.md                   # This file
 ```
+
+Per project, `./commands/project-init` also generates an `AGENTS.md` with the
+project's own rules (stack, conventions, tests) — separate from the agent prompt.
 
 ---
 
@@ -369,24 +385,17 @@ To enable symlinks:
 </details>
 
 <details>
-<summary>⚠️ JSON config warnings</summary>
+<summary>⚠️ JSON config merge warning</summary>
 
-Install `jq` or Python for automatic config management:
+The installer uses **Python3** to **smart-merge** `~/.config/opencode/opencode.json`:
 
-**macOS:**
-```bash
-brew install jq
-```
+- If the file **doesn't exist** → a fresh Quetzal config is created.
+- If it **already exists** → it is **preserved, not overwritten**: your `provider` (model endpoints), `mcp` servers and `permissions` stay intact, and only the `agent` section is updated to the latest Quetzal version.
 
-**Ubuntu/Debian:**
-```bash
-sudo apt install jq
-```
+Python3 is pre-installed on Linux, macOS, and Git Bash for Windows.
+If Python is missing, the installer keeps your existing config unchanged and warns you.
 
-**Windows:**
-Download from [stedolan.github.io/jq](https://stedolan.github.io/jq/download/)
-
-Or manually edit `~/.opencode/agents.json` — see [Manual Configuration](#-manual-configuration).
+Or manually edit `~/.config/opencode/opencode.json` — see [Manual Configuration](#manual-configuration).
 </details>
 
 ---
@@ -460,35 +469,69 @@ Additional skills included:
 
 ## 📝 Manual Configuration
 
-If automatic config fails, add this to `~/.opencode/agents.json`:
+If automatic config fails, define Quetzal in `~/.config/opencode/opencode.json. Quetzal is a **primary agent** loaded from its prompt file:
 
 ```json
 {
-  "quetzal": {
-    "prompt": "{file:./quetzal/QUETZAL.md}",
-    "tools": {
-      "edit": true,
-      "write": true
-    },
-    "description": "Principal architect and mentor for scalable, maintainable systems",
-    "mode": "primary",
-    "mcpServers": ["context7", "engram"]
+  "agent": {
+    "quetzal": {
+      "prompt": "{file:./agent-defs/quetzal/QUETZAL.md}",
+      "description": "Principal architect and mentor for scalable, maintainable systems",
+      "mode": "primary",
+      "tools": {
+        "bash": true,
+        "read": true,
+        "write": true,
+        "edit": true,
+        "delegate": true
+      }
+    }
   }
 }
 ```
 
-And add MCP servers to `~/.opencode/mcp/servers.json`:
+> **Note:** agents can also be defined per-file in `.opencode/agents/<name>.md` (YAML frontmatter + body as prompt). The installer uses the `opencode.json` + `agent-defs/` approach for control over visibility.
+
+And add MCP servers under `"mcp"` in the same `opencode.json`:
 
 ```json
 {
-  "mcpServers": {
+  "mcp": {
     "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
     },
     "engram": {
-      "command": "engram",
-      "args": ["mcp"]
+      "type": "local",
+      "command": ["engram", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+### Permissions (safety)
+
+`install.sh` configures sensible safety rules so Quetzal does not touch secrets or
+run destructive operations without confirmation:
+
+```json
+{
+  "permission": {
+    "bash": {
+      "*": "allow",
+      "git commit *": "ask",
+      "git push*": "ask",
+      "git rebase *": "ask",
+      "git reset --hard *": "ask"
+    },
+    "read": {
+      "*": "allow",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/credentials.json": "deny",
+      "**/secrets/**": "deny"
     }
   }
 }

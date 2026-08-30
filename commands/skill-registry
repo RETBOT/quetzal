@@ -75,11 +75,11 @@ analyze_triggers() {
         for skill_dir in "$SKILLS_DIR"/*/; do
             if [ -d "$skill_dir" ]; then
                 skill_name=$(basename "$skill_dir")
-                skill_file="$skill_dir/skill.md"
+                skill_file="$skill_dir/SKILL.md"
                 
                 if [ -f "$skill_file" ]; then
-                    # Extraer trigger del archivo (línea que empieza con "Trigger:")
-                    trigger=$(grep -i "^trigger:" "$skill_file" 2>/dev/null | head -1 | cut -d':' -f2- | xargs)
+                    # Extraer trigger de la "description" del frontmatter YAML (estándar de OpenCode)
+                    trigger=$(grep "^description:" "$skill_file" 2>/dev/null | head -1 | cut -d':' -f2- | xargs)
                     if [ -n "$trigger" ]; then
                         skill_triggers["$skill_name"]="$trigger"
                     fi
