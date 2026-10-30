@@ -442,8 +442,8 @@ SDD agents are mostly configured as `subagent` with `hidden: true`, except `sdd-
 | `sdd-onboard` | subagent | Yes | Guide SDD cycle |
 
 **Tools per agent:**
-- **Quetzal**: bash, read, write, edit, delegate
-- **sdd-orchestrator**: bash, read, write, edit, delegate
+- **Quetzal**: bash, read, write, edit, subagent
+- **sdd-orchestrator**: bash, read, write, edit, subagent
 - **sdd-init**: bash, read
 - **sdd-explore**: read
 - **sdd-apply**: bash, read, write, edit
@@ -469,22 +469,21 @@ Additional skills included:
 
 ## 📝 Manual Configuration
 
-If automatic config fails, define Quetzal in `~/.config/opencode/opencode.json. Quetzal is a **primary agent** loaded from its prompt file:
+If automatic config fails, define Quetzal in `~/.config/opencode/opencode.json`. Quetzal is a **primary agent** loaded from its prompt file:
 
 ```json
 {
-  "agent": {
+  "agents": {
     "quetzal": {
-      "prompt": "{file:./agent-defs/quetzal/QUETZAL.md}",
+      "system": "{file:./agent-defs/quetzal/QUETZAL.md}",
       "description": "Principal architect and mentor for scalable, maintainable systems",
       "mode": "primary",
-      "tools": {
-        "bash": true,
-        "read": true,
-        "write": true,
-        "edit": true,
-        "delegate": true
-      }
+      "permissions": [
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "allow" }
+      ]
     }
   }
 }
@@ -492,20 +491,22 @@ If automatic config fails, define Quetzal in `~/.config/opencode/opencode.json. 
 
 > **Note:** agents can also be defined per-file in `.opencode/agents/<name>.md` (YAML frontmatter + body as prompt). The installer uses the `opencode.json` + `agent-defs/` approach for control over visibility.
 
-And add MCP servers under `"mcp"` in the same `opencode.json`:
+And add MCP servers under `"mcp.servers"` in the same `opencode.json`:
 
 ```json
 {
   "mcp": {
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "enabled": true
-    },
-    "engram": {
-      "type": "local",
-      "command": ["engram", "mcp"],
-      "enabled": true
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "disabled": false
+      },
+      "engram": {
+        "type": "local",
+        "command": ["engram", "mcp"],
+        "disabled": false
+      }
     }
   }
 }
@@ -514,26 +515,23 @@ And add MCP servers under `"mcp"` in the same `opencode.json`:
 ### Permissions (safety)
 
 `install.sh` configures sensible safety rules so Quetzal does not touch secrets or
-run destructive operations without confirmation:
+run destructive operations without confirmation. V2 uses one ordered list where the
+last matching rule wins:
 
 ```json
 {
-  "permission": {
-    "bash": {
-      "*": "allow",
-      "git commit *": "ask",
-      "git push*": "ask",
-      "git rebase *": "ask",
-      "git reset --hard *": "ask"
-    },
-    "read": {
-      "*": "allow",
-      "**/.env": "deny",
-      "**/.env.*": "deny",
-      "**/credentials.json": "deny",
-      "**/secrets/**": "deny"
-    }
-  }
+  "permissions": [
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "git commit *", "effect": "ask" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "git rebase *", "effect": "ask" },
+    { "action": "shell", "resource": "git reset --hard *", "effect": "ask" },
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "**/.env", "effect": "deny" },
+    { "action": "read", "resource": "**/.env.*", "effect": "deny" },
+    { "action": "read", "resource": "**/credentials.json", "effect": "deny" },
+    { "action": "read", "resource": "**/secrets/**", "effect": "deny" }
+  ]
 }
 ```
 

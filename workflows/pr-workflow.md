@@ -53,6 +53,15 @@ feat(auth): add JWT authentication
 Refs: #123
 ```
 
+**La convención del proyecto manda**: si `AGENTS.md` define otro formato (por ejemplo `[TIPO][MODULO] descripción`), usa ese. Este workflow describe el default.
+
+**Reglas:**
+- Un cambio = un commit. Commits atómicos.
+- Sé específico con el scope/módulo.
+- Evita descripciones genéricas ("fix stuff", "wip", "cambios varios").
+
+> **Regla de oro**: si un compañero entiende el cambio leyendo el historial de Git, el commit está bien escrito.
+
 ### Paso 3: Descripción del PR
 **Quetzal debe crear descripción completa:**
 
