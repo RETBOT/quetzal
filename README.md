@@ -463,7 +463,7 @@ npm install -g @upstash/context7-mcp
 ```
 
 Ask the agent to add it to your client's MCP config, or see
-[Manual Configuration](#manual-configuration).
+[Manual Configuration](#-manual-configuration).
 </details>
 
 <details>
@@ -490,7 +490,7 @@ It shouldn't — `INSTALL.md` requires a backup before every edit. Look for
 
 Then re-run the installation, telling the agent explicitly to merge instead of
 replace. If it happens again, install manually with
-[Manual Configuration](#manual-configuration).
+[Manual Configuration](#-manual-configuration).
 </details>
 
 <details>
@@ -578,75 +578,72 @@ Additional skills included:
 
 ## 📝 Manual Configuration
 
-Prefer to do it by hand? [`INSTALL.md`](INSTALL.md) has the complete mapping for every
-client. This is the short version for OpenCode V2.
+Quetzal is a Markdown prompt plus one config entry — you can wire it by hand in five
+minutes. [`INSTALL.md`](INSTALL.md) has the exact JSON for every client; this is the
+shape of the work.
 
-Define Quetzal in `~/.config/opencode/opencode.json` as a **primary agent** loaded from
-its prompt file:
+1. **Copy the prompts.** `quetzal/QUETZAL.md`, `kukulkan/kukulkan.md`, and the eleven
+   `agents/sdd-*/agent.md` files go into your client's agent directory. On OpenCode
+   that's `~/.config/opencode/agent-defs/<name>/`.
+2. **Copy the skills.** `skills/<name>/SKILL.md` → `~/.config/opencode/skills/`.
+3. **Register each agent** in `~/.config/opencode/opencode.json` under `agents`, with
+   `system` pointing at the prompt file you just copied:
 
-```json
-{
-  "agents": {
-    "quetzal": {
-      "system": "{file:./agent-defs/quetzal/QUETZAL.md}",
-      "description": "Principal architect and mentor for scalable, maintainable systems",
-      "mode": "primary",
-      "permissions": [
-        { "action": "shell", "resource": "*", "effect": "allow" },
-        { "action": "read", "resource": "*", "effect": "allow" },
-        { "action": "edit", "resource": "*", "effect": "allow" },
-        { "action": "subagent", "resource": "*", "effect": "allow" }
-      ]
-    }
-  }
-}
-```
+   ```json
+   {
+     "agents": {
+       "quetzal": {
+         "system": "{file:./agent-defs/quetzal/QUETZAL.md}",
+         "description": "Principal architect and mentor for scalable, maintainable systems",
+         "mode": "primary",
+         "permissions": [
+           { "action": "shell", "resource": "*", "effect": "allow" },
+           { "action": "read", "resource": "*", "effect": "allow" },
+           { "action": "edit", "resource": "*", "effect": "allow" },
+           { "action": "subagent", "resource": "*", "effect": "allow" }
+         ]
+       }
+     }
+   }
+   ```
 
-> **Note:** agents can also be defined per-file in `.opencode/agents/<name>.md` (YAML frontmatter + body as prompt). Quetzal uses the `opencode.json` + `agent-defs/` approach so permissions live in one place and visibility stays under your control.
+   Kukulkán and the SDD agents use the same shape with different `mode`, `hidden`, and
+   `permissions`. The full table is in [`INSTALL.md`](INSTALL.md).
+4. **Add the safety rules** to the top-level `permissions` array. V2 evaluates it in
+   order and the **last matching rule wins**, so `deny` goes after the catch-all:
 
-And add MCP servers under `"mcp.servers"` in the same `opencode.json`:
+   ```json
+   {
+     "permissions": [
+       { "action": "shell", "resource": "*", "effect": "allow" },
+       { "action": "shell", "resource": "git commit *", "effect": "ask" },
+       { "action": "shell", "resource": "git push *", "effect": "ask" },
+       { "action": "shell", "resource": "git rebase *", "effect": "ask" },
+       { "action": "shell", "resource": "git reset --hard *", "effect": "ask" },
+       { "action": "read", "resource": "*", "effect": "allow" },
+       { "action": "read", "resource": "**/.env", "effect": "deny" },
+       { "action": "read", "resource": "**/.env.*", "effect": "deny" },
+       { "action": "read", "resource": "**/credentials.json", "effect": "deny" },
+       { "action": "read", "resource": "**/secrets/**", "effect": "deny" }
+     ]
+   }
+   ```
+5. **Verify.** The config is read at startup, so restart the client and check:
 
-```json
-{
-  "mcp": {
-    "servers": {
-      "context7": {
-        "type": "remote",
-        "url": "https://mcp.context7.com/mcp",
-        "disabled": false
-      },
-      "engram": {
-        "type": "local",
-        "command": ["engram", "mcp"],
-        "disabled": false
-      }
-    }
-  }
-}
-```
+   ```bash
+   opencode api get /api/agent
+   ```
 
-### Permissions (safety)
+   Every agent must appear with the right `mode` and `hidden`. If one is missing, the
+   `system` path is wrong or the JSON has a syntax error.
 
-Quetzal's recommended setup keeps it away from secrets and makes it ask before
-destructive Git operations. V2 uses one ordered list where the last matching rule
-wins:
+> **Note:** agents can also be defined per-file in `.opencode/agents/<name>.md` (YAML
+> frontmatter + body as prompt). Quetzal uses `opencode.json` + `agent-defs/` so
+> permissions live in one place and visibility stays under your control.
 
-```json
-{
-  "permissions": [
-    { "action": "shell", "resource": "*", "effect": "allow" },
-    { "action": "shell", "resource": "git commit *", "effect": "ask" },
-    { "action": "shell", "resource": "git push *", "effect": "ask" },
-    { "action": "shell", "resource": "git rebase *", "effect": "ask" },
-    { "action": "shell", "resource": "git reset --hard *", "effect": "ask" },
-    { "action": "read", "resource": "*", "effect": "allow" },
-    { "action": "read", "resource": "**/.env", "effect": "deny" },
-    { "action": "read", "resource": "**/.env.*", "effect": "deny" },
-    { "action": "read", "resource": "**/credentials.json", "effect": "deny" },
-    { "action": "read", "resource": "**/secrets/**", "effect": "deny" }
-  ]
-}
-```
+Optional MCP servers (`context7`, `engram`) live under `mcp.servers` in the same file;
+the snippets are in [`INSTALL.md`](INSTALL.md). Both are optional — Quetzal runs without
+them, you just lose fresh library docs and persistent memory.
 
 ---
 
