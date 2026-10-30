@@ -304,19 +304,19 @@ Quetzal: Saves the architectural decision to Engram.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    OpenCode IDE                             │
+│      Your coding client (OpenCode · Claude Code · Codex)    │
 └─────────────────────────────────────────────────────────────┘
                               │
         ┌─────────────────────┼─────────────────────┐
         │                     │                     │
         ▼                     ▼                     ▼
 ┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
-│   Quetzal    │    │     Engram      │    │   Context7   │
-│   Agent      │    │  (Memory)       │    │   (Docs)     │
+│ Quetzal /    │    │     Engram      │    │   Context7   │
+│ Kukulkán     │    │  (Memory)       │    │   (Docs)     │
 ├──────────────┤    ├─────────────────┤    ├──────────────┤
-│ QUETZAL.md   │    │ ~/.engram/      │    │ context7.com │
-│ Architect    │    │ SQLite          │    │ MCP Server   │
-│ Mentor       │    │ Persistent      │    │ Latest docs  │
+│ Markdown     │    │ ~/.engram/      │    │ context7.com │
+│ prompts      │    │ SQLite          │    │ MCP Server   │
+│ (portable)   │    │ Persistent      │    │ Latest docs  │
 └──────────────┘    └─────────────────┘    └──────────────┘
 ```
 

@@ -77,11 +77,12 @@ Este Pack Esencial está inspirado en el sistema de **componentes, skills y pres
 
 ## Instalación
 
-Los comandos, workflows y presets se instalan automáticamente con Quetzal. Solo necesitas ejecutar:
+Los comandos, workflows y presets se instalan con el resto del ecosistema. Pide a tu
+agente que instale Quetzal siguiendo [`INSTALL.md`](INSTALL.md):
 
-```bash
-git clone https://github.com/RETBOT/quetzal.git
-./quetzal/install.sh
+```text
+Instala Quetzal y Kukulkán desde https://github.com/RETBOT/quetzal
+siguiendo el prompt de INSTALL.md, paso a paso.
 ```
 
 Luego en tu proyecto:
@@ -117,9 +118,8 @@ cd mi-proyecto
 # 1. Clonar Quetzal
 git clone https://github.com/RETBOT/quetzal.git
 
-# 2. Instalar Quetzal (instala Engram, Context7, etc)
-cd quetzal
-./install.sh
+# 2. Instalar Quetzal (pídelo a tu agente, ver INSTALL.md)
+#    Queda instalado Quetzal + Kukulkán + agentes SDD + skills
 
 # 3. Ir a tu proyecto
 cd ../mi-proyecto
