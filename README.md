@@ -251,19 +251,26 @@ Predefined workflows for common situations:
 ### 🎛️ Presets (Operating Modes)
 Presets for different contexts:
 
-| Preset | Description | When to use |
-|--------|-------------|-------------|
-| **strict-mode** | Maximum rigor (80% coverage, SDD required) | Enterprise, critical code |
-| **fast-mode** | Agile and pragmatic (60% coverage, flexible) | MVPs, prototypes |
-| **team-mode** | Balanced with team conventions | Teams 3-10 devs |
+| Preset | Coverage | SDD | Approvals | When to use |
+|--------|----------|-----|-----------|-------------|
+| **strict-mode** | 80% minimum | Full, mandatory | 2 | Enterprise, critical code |
+| **fast-mode** | 60% target | Simplified | 1 | MVPs, prototypes |
+| **team-mode** | 70% target | Standard | 1 + conventions | Teams 3-10 devs |
 
-**Change preset:**
-```bash
-# In .quetzal/config.json
+**Change preset** in `.quetzal/config.json`:
+
+```json
 {
-  "mode": "strict"  # or "fast", "team"
+  "mode": "strict"
 }
 ```
+
+Valid values: `strict`, `fast`, `team`.
+
+**Add your own:** drop a Markdown file in `presets/<name>.md` with the rules, coverage
+target, and approval count, then select it the same way. Workflows follow the same
+pattern in `workflows/<name>.md`; project commands are bash scripts in `commands/`
+(mark them executable with `chmod +x`).
 
 ---
 
