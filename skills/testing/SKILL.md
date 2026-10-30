@@ -21,6 +21,19 @@ Prueban que varias partes jalen juntas. Para API endpoints, DB + código, servic
 ### E2E Tests
 Prueban la app como usuario real. Para flujos críticos y happy paths (login, registro, checkout).
 
+## Cuándo escribir tests
+
+| Situación | ¿Test? | Tipo |
+|-----------|--------|------|
+| Lógica con 2+ branches (if/else, switch) | ✅ Sí | Unit |
+| Cálculos, conversiones, validaciones | ✅ Sí | Unit |
+| Integración con servicio externo | ✅ Sí | Integration (con mock) |
+| Bug fix | ✅ Sí (reproduce el bug primero) | Unit |
+| Refactor sin cambio de comportamiento | ✅ Sí (regresión) | Unit |
+| Getter/setter o one-liner trivial | ❌ No | - |
+
+**Si el framework es difícil de testear** (UI móvil, componentes, pantallas): aísla la lógica en servicios testables y testea ahí. No persigas coverage en la capa que no se puede probar.
+
 ## TDD - Test-Driven Development
 1. **RED**: escribe el test (va a fallar).
 2. **GREEN**: código mínimo para que pase.

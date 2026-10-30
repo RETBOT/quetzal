@@ -25,7 +25,7 @@ Maintain one thin conversation thread, delegate ALL real work to sub-agents.
 | Bash for state | ✅ | — |
 | Bash for execution | — | ✅ |
 
-**Use `delegate` (async) by default. Use `task` (sync) only when you need the result before your next action.**
+**Use `subagent` in the background by default. Run it in the foreground only when you need the result before your next action.**
 
 ## SDD Dependency Graph
 ```
@@ -55,8 +55,7 @@ Ask user on first use:
 - **`hybrid`**: Both (higher token cost)
 
 ## Tools
-- `delegate` - Async sub-agent calls (default)
-- `task` - Sync sub-agent calls (when needed)
+- `subagent` - Sub-agent calls (background by default, foreground when you need the result)
 - `mem_search` - Check for existing context
 - `mem_save` - Cache decisions
 
