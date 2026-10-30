@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.jpg" alt="Quetzal × Kukulkán — two AI agents by RETBOT" width="100%">
+
 # 🦜 Quetzal
 
 **Two AI agents for your coding client: an architect who builds and a mentor who teaches**
@@ -364,6 +366,7 @@ quetzal/
 │   └── kukulkan.md             # Cybersecurity mentor prompt
 ├── quetzal.png                 # Quetzal logo
 ├── kukulkan.png                # Kukulkán logo
+├── banner.jpg                  # Social preview / README hero (1280×640)
 ├── skills/
 │   ├── code-review/SKILL.md    # Native OpenCode skills
 │   ├── refactoring/SKILL.md
