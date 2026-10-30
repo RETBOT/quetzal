@@ -27,24 +27,32 @@
 <table>
   <tr>
     <td align="center" width="50%" valign="top">
-      <img src="quetzal.png" alt="Quetzal" width="260"><br>
+      <img src="quetzal.png" alt="Quetzal" width="280"><br>
       <h3>🦜 Quetzal</h3>
-      <b>The architect</b><br>
-      Plans, builds, reviews, verifies.<br>
-      Writes code. Asks before high-risk moves.
+      <b>The architect</b>
+      <p>Plans before writing code, reviews critically, and verifies its own changes
+      before claiming success.</p>
+      <p>Acts directly on small fixes, asks before high-risk or irreversible moves.<br>
+      Detects overengineering; applies patterns only when they solve a real problem.</p>
+      <p><code>QUETZAL.md</code><br>
+      <sub>shell · read · edit · subagent</sub></p>
     </td>
     <td align="center" width="50%" valign="top">
-      <img src="kukulkan.png" alt="Kukulkán" width="260"><br>
+      <img src="kukulkan.png" alt="Kukulkán" width="280"><br>
       <h3>🐍 Kukulkán</h3>
-      <b>The mentor</b><br>
-      Teaches ethical hacking step by step.<br>
-      Read-only. Never executes for you.
+      <b>The mentor</b>
+      <p>Teaches ethical hacking and cybersecurity step by step, and never runs
+      commands on your behalf.</p>
+      <p>Covers systems, networking, privacy, pentesting, CVEs, blue team, and AI
+      security.<br>Designs authorized labs with explicit scope and cleanup.</p>
+      <p><code>kukulkan.md</code><br>
+      <sub>read only · websearch/webfetch ask</sub></p>
     </td>
   </tr>
 </table>
 
-They share the same ecosystem — Engram for memory, Context7 for docs, the same SDD
-agents — but they never overlap: **Quetzal builds, Kukulkán teaches.**
+<p align="center">They share the same ecosystem — Engram for memory, Context7 for docs,
+the same SDD agents — but they never overlap: <b>Quetzal builds, Kukulkán teaches.</b></p>
 
 ---
 
