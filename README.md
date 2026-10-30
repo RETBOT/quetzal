@@ -39,6 +39,42 @@ Quetzal doesn't just write code — it helps you build the *right* thing, the *r
 
 ---
 
+## 🐍 Kukulkán — Cybersecurity Mentor
+
+<div align="center">
+<img src="kukulkan.png" alt="Kukulkán" width="200">
+</div>
+
+Kukulkán is Quetzal's companion agent: an **ethical hacking and cybersecurity mentor**. Where Quetzal builds, Kukulkán teaches. It walks you through fundamentals step by step and never runs commands on your behalf.
+
+- 🎓 **Teaches, doesn't execute** — shell is denied by design; it explains each command and lets you decide whether to run it
+- 🧪 **Authorized labs only** — OWASP Juice Shop, isolated VMs, deliberately vulnerable apps
+- 🕵️ **Privacy and anonymity** — VPN, proxies, Tor, DNS leaks, cookies, fingerprinting, and their real limits
+- 🛡️ **Blue team too** — logs, detection, forensics, incident response
+- 🤖 **AI security** — prompt injection, jailbreaks, RAG and agent tooling risks
+
+**Study modes** (conversational shortcuts, not terminal commands):
+
+| Shortcut | What it does |
+|----------|--------------|
+| `/aprender tema` | Explain from fundamentals with guided practice |
+| `/practica tema` | Lab with objective, scope, steps, evidence and cleanup |
+| `/quiz tema` | One question at a time; waits for your answer |
+| `/repasar` | Review and detect gaps |
+| `/ruta` | Current unit, prerequisites, next milestones |
+| `/analizar archivo` | Analyze material you provide, keeping its terminology |
+| `/cve ID` | Affected products, sources, CWE/CVSS, impact, mitigation |
+| `/informe` | Reproducible report with sanitized evidence |
+| `/continuar` | Resume from available progress |
+
+**Guardrails:** no access to third-party systems, no credential theft, no malware, no exfiltration of real data, no hiding an intrusion. If scope isn't clear, it asks and offers a local simulation instead.
+
+**Permissions:** `read` allowed · `shell`, `edit`, `subagent`, `external_directory` denied · `websearch`, `webfetch` ask.
+
+> *"Primero entender, después automatizar."*
+
+---
+
 ## 🚀 Quick Start
 
 > ⚠️ **Note**: This project is actively being developed and tested on **Windows**. Other platforms: coming soon.
@@ -95,6 +131,15 @@ The core architect agent that brings discipline to your coding workflow.
 - Detects overengineering and technical debt without dogmatic patterns
 - Verifies its own changes (tests/build/lint) before declaring success
 - Explicit security, Git, and evidence-based debugging policies
+
+### 🐍 Kukulkán Agent
+The companion mentor agent for ethical hacking and cybersecurity. Read-only by design: it teaches and reviews, never executes.
+
+**Features:**
+- Progressive curriculum: systems, networking, privacy, pentesting, CVEs, blue team, AI security
+- Guided labs with explicit scope and authorization checks
+- Manual-first pedagogy: understand the procedure before touching a tool
+- `/aprender`, `/practica`, `/quiz`, `/repasar`, `/ruta`, `/cve`, `/informe` study modes
 
 ### 💾 Engram (Persistent Memory)
 [Engram](https://github.com/Gentleman-Programming/engram) remembers decisions, bugs, and context across sessions.
@@ -282,7 +327,11 @@ Quetzal: Saves the architectural decision to Engram.
 ```
 quetzal/
 ├── quetzal/
-│   └── QUETZAL.md              # Agent behavior (compact prompt)
+│   └── QUETZAL.md              # Architect agent behavior (compact prompt)
+├── kukulkan/
+│   └── kukulkan.md             # Cybersecurity mentor prompt
+├── quetzal.png                 # Quetzal logo
+├── kukulkan.png                # Kukulkán logo
 ├── skills/
 │   ├── code-review/SKILL.md    # Native OpenCode skills
 │   ├── refactoring/SKILL.md
@@ -429,6 +478,7 @@ SDD agents are mostly configured as `subagent` with `hidden: true`, except `sdd-
 | Agent | Mode | Hidden | Purpose |
 |--------|------|--------|-----------|
 | `quetzal` | primary | No | Main agent |
+| `kukulkan` | primary | No | Cybersecurity mentor |
 | `sdd-orchestrator` | primary | No | SDD Coordinator |
 | `sdd-init` | subagent | Yes | Detect stack/testing |
 | `sdd-explore` | subagent | Yes | Explore codebase |
@@ -443,6 +493,7 @@ SDD agents are mostly configured as `subagent` with `hidden: true`, except `sdd-
 
 **Tools per agent:**
 - **Quetzal**: bash, read, write, edit, subagent
+- **Kukulkán**: read only (shell, edit, subagent, external_directory denied; websearch/webfetch ask)
 - **sdd-orchestrator**: bash, read, write, edit, subagent
 - **sdd-init**: bash, read
 - **sdd-explore**: read
