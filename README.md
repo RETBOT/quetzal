@@ -4,10 +4,10 @@
 
 # 🧠 Quetzal
 
-**AI Architect Agent for OpenCode**
+**AI Architect Agent for OpenCode, Claude Code, Codex, and any agent-capable client**
 
-[![Platform](https://img.shields.io/badge/platform-Windows-blue)](https://github.com/RETBOT/quetzal)
-[![Shell](https://img.shields.io/badge/shell-Bash%7C%20PowerShell%20%7C%20Make-green)](https://github.com/RETBOT/quetzal)
+[![Clients](https://img.shields.io/badge/clients-OpenCode%20%7C%20Claude%20Code%20%7C%20Codex-blue)](INSTALL.md)
+[![Install](https://img.shields.io/badge/install-agent--assisted-green)](INSTALL.md)
 [![Engram](https://img.shields.io/badge/Engram-Persistent%20Memory-purple)](https://github.com/Gentleman-Programming/engram)
 [![Context7](https://img.shields.io/badge/Context7-Library%20Docs-orange)](https://context7.com)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
@@ -77,44 +77,50 @@ Kukulkán is Quetzal's companion agent: an **ethical hacking and cybersecurity m
 
 ## 🚀 Quick Start
 
-> ⚠️ **Note**: This project is actively being developed and tested on **Windows**. Other platforms: coming soon.
+There is **no installer script**. You install Quetzal by asking an agent to do it.
 
-### One Command (Windows)
+Open your coding agent — OpenCode, Claude Code, Codex, Cursor, or any other client
+that can read files and edit configuration — and paste this:
 
-```bash
-git clone https://github.com/RETBOT/quetzal.git
-cd quetzal
-./install.sh
+```text
+Install Quetzal and Kukulkán in this client.
+
+Repository: https://github.com/RETBOT/quetzal
+Follow the installation prompt at INSTALL.md in that repository, step by step.
+
+Rules:
+- Detect which client I'm using and follow only that client's section.
+- Back up every config file before editing it.
+- Merge into my existing config; never replace providers, models, MCP servers,
+  permissions, or unrelated agents.
+- Ask before overwriting anything with the same name.
+- When done, show me a table of what was installed, where, and how to verify it.
 ```
 
-This installs the complete ecosystem:
-- ✅ **Quetzal Agent** — Your AI architect
-- ✅ **Engram** — Persistent memory across sessions
-- ✅ **Context7** — Up-to-date library documentation
+The agent clones the repo, copies the prompts, merges the agent entries into your
+client's config, and verifies the result. It reads the current docs for your client
+version instead of guessing paths.
 
-### Platform-Specific
+### What gets installed
 
-All platforms use the same script:
+| Piece | What it is |
+|---|---|
+| 🦜 **Quetzal** | Architect agent — plans, builds, reviews, verifies |
+| 🐍 **Kukulkán** | Cybersecurity mentor — read-only, teaches step by step |
+| 🧩 **11 SDD agents** | Spec-Driven Development sub-agents + orchestrator |
+| 🎯 **4 skills** | `code-review`, `refactoring`, `sdd`, `testing` |
+| 💾 **Engram** *(optional)* | Persistent memory across sessions |
+| 📚 **Context7** *(optional)* | Up-to-date library documentation |
 
-```bash
-./install.sh
-```
+### The installation prompt
 
-On Windows, use **Git Bash** or **WSL**:
-```bash
-./install.sh
-```
+[`INSTALL.md`](INSTALL.md) holds the full prompt: per-client steps for OpenCode V2,
+Claude Code, and Codex, plus guidance for any other client. Point your agent at that
+file — or paste it whole — and it does the work.
 
-O con Make (auto-detecta):
-```bash
-make install
-
-```bash
-make install          # Auto-detect OS and install everything
-make update           # Update all components
-make uninstall        # Remove Quetzal
-```
-</details>
+It works because an agent can read your current config, detect what's already
+installed, merge instead of overwrite, and explain what it changed. A shell script
+can't do that for every client without breaking every time a config format changes.
 
 ---
 
@@ -238,25 +244,17 @@ Presets for different contexts:
 
 | Tool | Required | For | Notes |
 |------|----------|-----|-------|
-| **Git** | ✅ Yes | All | For cloning and updates |
+| **An agent** | ✅ Yes | Installation | OpenCode, Claude Code, Codex, or any client that can read files and edit config |
+| **Git** | ✅ Yes | Installation | For cloning the repository |
 | **Node.js** | ⚪ Optional | Context7 | `npm install -g @upstash/context7-mcp` |
 | **Go** | ⚪ Optional | Engram | Build from source |
-| **Bash** | ⚪ Unix | Installer | Git Bash works on Windows |
-| **PowerShell** | ⚪ Windows | Alternative | Native Windows support |
-| **Make** | ⚪ Optional | Convenience | Auto-detect installer |
 
 ### Optional Components
 
-**Without Node.js:** Context7 won't install, but Quetzal works fine  
+**Without Node.js:** Context7 won't install, but Quetzal works fine
 **Without Go:** Engram won't install, but Quetzal works fine
 
 Both are **optional** — Quetzal functions as a standalone agent.
-
-### Windows Symlinks
-
-- **Option 1:** Run PowerShell as Administrator
-- **Option 2:** Enable Developer Mode in Windows Settings
-- **Fallback:** Installer automatically copies files if symlinks fail
 
 ---
 
@@ -341,8 +339,7 @@ quetzal/
 ├── commands/                   # project-init, sdd-init, skill-registry
 ├── workflows/                  # feature, bugfix, refactor, pr
 ├── presets/                    # strict, fast, team
-├── install.sh                  # Unix installer (Bash)
-├── Makefile                    # Universal installer
+├── INSTALL.md                  # Installation prompt for agents (all clients)
 └── README.md                   # This file
 ```
 
@@ -353,45 +350,58 @@ project's own rules (stack, conventions, tests) — separate from the agent prom
 
 ## 🔄 Updates
 
-Update everything to latest version:
+Updates work the same way as installation: ask an agent.
 
-```bash
-# Re-run the installer
-./install.sh
+```text
+Update my Quetzal installation from https://github.com/RETBOT/quetzal.
 
-# Or using make
-make update
+Compare the repo's agent prompts and skills against what I have installed,
+show me what changed, then apply the updates to the same paths.
+Back up the config before touching it and keep my local customizations.
 ```
 
-This will:
-- ✅ Pull latest Quetzal changes
-- ✅ Update Engram (if installed)
-- ✅ Update Context7 (if installed)
-- ✅ Refresh all configurations
+The agent pulls the latest prompts, diffs them against your installed copies, and
+merges the changes. Because your customizations live in the installed files and your
+`AGENTS.md`, it can tell the difference between upstream changes and your own edits —
+which a blind overwrite cannot.
+
+### What an update covers
+
+- ✅ Quetzal and Kukulkán prompts
+- ✅ SDD agents and skills
+- ✅ Agent entries in your client's config
+- ⚪ Engram and Context7 (only if you ask it to upgrade the binaries)
 
 ---
 
 ## 🛠️ Troubleshooting
 
 <details>
-<summary>❌ "Permission denied" on install.sh</summary>
+<summary>❌ The agent didn't install anything</summary>
 
-```bash
-chmod +x install.sh
-./install.sh
+Most likely it couldn't detect the client or the config root. Tell it explicitly:
+
+```text
+I'm using <OpenCode / Claude Code / Codex>. My config lives at <path>.
+Install Quetzal following INSTALL.md from https://github.com/RETBOT/quetzal
 ```
+
+If the client isn't covered by `INSTALL.md`, ask the agent to map the prompt to that
+client's agent/persona location and to report which capabilities it can't honor.
 </details>
 
 <details>
-<summary>❌ "Execution policy" blocks PowerShell</summary>
+<summary>❌ Agents don't show up after installing</summary>
 
-```powershell
-# Temporary bypass
-powershell -ExecutionPolicy Bypass -File install.ps1
+Configs are read at startup. Restart the client, then verify:
 
-# Or permanently for CurrentUser
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
+- **OpenCode:** `opencode api get /api/agent` — every agent must be listed with the
+  right `mode` and `hidden`.
+- **Claude Code:** `/agents` inside a session.
+- **Codex:** the agent files must be under `~/.codex/agents/`.
+
+If the agent edited the config but the client ignores it, check that it merged into
+the correct key for your version — V2 uses `agents`, not `agent`.
 </details>
 
 <details>
@@ -402,10 +412,13 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 - **macOS:** `brew install node`
 - **Linux:** `sudo apt install nodejs npm`
 
-Then re-run the installer, or install manually:
+Then install the server:
 ```bash
 npm install -g @upstash/context7-mcp
 ```
+
+Ask the agent to add it to your client's MCP config, or see
+[Manual Configuration](#manual-configuration).
 </details>
 
 <details>
@@ -414,37 +427,37 @@ npm install -g @upstash/context7-mcp
 **Install Go first:**
 - All platforms: https://go.dev/dl/
 
-Then re-run the installer, or install manually:
+Then build it:
 ```bash
 git clone https://github.com/Gentleman-Programming/engram.git
 cd engram && go build -o ~/.local/bin/engram ./cmd/engram
 ```
+
+Confirm with `engram --version` before asking the agent to wire it up. Quetzal works
+without Engram — you only lose persistent memory.
 </details>
 
 <details>
-<summary>❌ Symlink creation fails (Windows)</summary>
+<summary>⚠️ The agent overwrote part of my config</summary>
 
-**This is normal without Admin/Developer Mode.**
+It shouldn't — `INSTALL.md` requires a backup before every edit. Look for
+`<config>.bak-<timestamp>` next to the original and restore it.
 
-The installer automatically falls back to file copy. Everything works the same.
-
-To enable symlinks:
-- Run PowerShell as Administrator, **or**
-- Settings → System → For developers → Developer Mode: ON
+Then re-run the installation, telling the agent explicitly to merge instead of
+replace. If it happens again, install manually with
+[Manual Configuration](#manual-configuration).
 </details>
 
 <details>
-<summary>⚠️ JSON config merge warning</summary>
+<summary>⚠️ Which agent is active?</summary>
 
-The installer uses **Python3** to **smart-merge** `~/.config/opencode/opencode.json`:
+- **OpenCode:** `Tab` or `/agent` cycles primary agents; `quetzal`, `kukulkan` and
+  `sdd-orchestrator` are the visible ones.
+- **Claude Code:** `claude --agent quetzal` starts a session as Quetzal; otherwise
+  they're subagents invoked by description.
+- **Codex:** pick the agent when starting the session.
 
-- If the file **doesn't exist** → a fresh Quetzal config is created.
-- If it **already exists** → it is **preserved, not overwritten**: your `provider` (model endpoints), `mcp` servers and `permissions` stay intact, and only the `agent` section is updated to the latest Quetzal version.
-
-Python3 is pre-installed on Linux, macOS, and Git Bash for Windows.
-If Python is missing, the installer keeps your existing config unchanged and warns you.
-
-Or manually edit `~/.config/opencode/opencode.json` — see [Manual Configuration](#manual-configuration).
+Prompt changes apply to **new sessions only**. Restart the session to see them.
 </details>
 
 ---
@@ -520,7 +533,11 @@ Additional skills included:
 
 ## 📝 Manual Configuration
 
-If automatic config fails, define Quetzal in `~/.config/opencode/opencode.json`. Quetzal is a **primary agent** loaded from its prompt file:
+Prefer to do it by hand? [`INSTALL.md`](INSTALL.md) has the complete mapping for every
+client. This is the short version for OpenCode V2.
+
+Define Quetzal in `~/.config/opencode/opencode.json` as a **primary agent** loaded from
+its prompt file:
 
 ```json
 {
@@ -540,7 +557,7 @@ If automatic config fails, define Quetzal in `~/.config/opencode/opencode.json`.
 }
 ```
 
-> **Note:** agents can also be defined per-file in `.opencode/agents/<name>.md` (YAML frontmatter + body as prompt). The installer uses the `opencode.json` + `agent-defs/` approach for control over visibility.
+> **Note:** agents can also be defined per-file in `.opencode/agents/<name>.md` (YAML frontmatter + body as prompt). Quetzal uses the `opencode.json` + `agent-defs/` approach so permissions live in one place and visibility stays under your control.
 
 And add MCP servers under `"mcp.servers"` in the same `opencode.json`:
 
@@ -565,9 +582,9 @@ And add MCP servers under `"mcp.servers"` in the same `opencode.json`:
 
 ### Permissions (safety)
 
-`install.sh` configures sensible safety rules so Quetzal does not touch secrets or
-run destructive operations without confirmation. V2 uses one ordered list where the
-last matching rule wins:
+Quetzal's recommended setup keeps it away from secrets and makes it ask before
+destructive Git operations. V2 uses one ordered list where the last matching rule
+wins:
 
 ```json
 {
@@ -610,10 +627,11 @@ Quetzal + Ecosystem:
 ## 🌟 Features
 
 - 🚀 **Cross-platform** — Linux, macOS, Windows
-- 🔄 **Auto-updating** — Stay current with one command
-- 🔗 **Smart linking** — Uses symlinks when possible, copies when needed
+- 🤖 **Client-agnostic** — OpenCode, Claude Code, Codex, or anything else
+- 🔄 **Agent-assisted updates** — Ask an agent to diff and merge the latest version
+- 🔗 **Portable prompts** — Plain Markdown with no client-specific frontmatter
 - ⚙️ **Zero config** — Works out of the box
-- 📦 **Portable** — Same repo works everywhere
+- 📦 **Same repo everywhere** — One source of truth per client
 - 🧠 **Memory** — Remembers across sessions (Engram)
 - 📚 **Knowledge** — Always fresh docs (Context7)
 - 🤝 **Inspired by** — Gentleman AI ecosystem
