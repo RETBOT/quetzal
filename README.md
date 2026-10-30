@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="quetzal.png" alt="Quetzal Logo" width="200">
+# 🦜 Quetzal
 
-# 🧠 Quetzal
+**Two AI agents for your coding client: an architect who builds and a mentor who teaches**
 
-**AI Architect Agent for OpenCode, Claude Code, Codex, and any agent-capable client**
+**Works with OpenCode · Claude Code · Codex · any agent-capable client**
 
 [![Clients](https://img.shields.io/badge/clients-OpenCode%20%7C%20Claude%20Code%20%7C%20Codex-blue)](INSTALL.md)
 [![Install](https://img.shields.io/badge/install-agent--assisted-green)](INSTALL.md)
@@ -20,9 +20,37 @@
 
 ---
 
+## 🎭 Two Agents, One Ecosystem
+
+<table>
+  <tr>
+    <td align="center" width="50%" valign="top">
+      <img src="quetzal.png" alt="Quetzal" width="260"><br>
+      <h3>🦜 Quetzal</h3>
+      <b>The architect</b><br>
+      Plans, builds, reviews, verifies.<br>
+      Writes code. Asks before high-risk moves.
+    </td>
+    <td align="center" width="50%" valign="top">
+      <img src="kukulkan.png" alt="Kukulkán" width="260"><br>
+      <h3>🐍 Kukulkán</h3>
+      <b>The mentor</b><br>
+      Teaches ethical hacking step by step.<br>
+      Read-only. Never executes for you.
+    </td>
+  </tr>
+</table>
+
+They share the same ecosystem — Engram for memory, Context7 for docs, the same SDD
+agents — but they never overlap: **Quetzal builds, Kukulkán teaches.**
+
+---
+
 ## ✨ What is Quetzal?
 
-Quetzal is a **principal architect AI agent** that brings discipline and strategic thinking to your development workflow. Unlike agents that over-eagerly jump to implementation, Quetzal:
+**Quetzal** is both the architect agent and the name of the ecosystem that ships it
+alongside **Kukulkán**. The architect brings discipline and strategic thinking to your
+development workflow. Unlike agents that over-eagerly jump to implementation, Quetzal:
 
 - 🎯 **Challenges assumptions** — Questions your approach before committing
 - 📐 **Designs first** — Architects solutions before writing code
@@ -36,42 +64,6 @@ Quetzal is a **principal architect AI agent** that brings discipline and strateg
 > **Think first, then act — and verify what you change.**
 
 Quetzal doesn't just write code — it helps you build the *right* thing, the *right* way. It asks only the questions that change the outcome, and verifies its own work before claiming success.
-
----
-
-## 🐍 Kukulkán — Cybersecurity Mentor
-
-<div align="center">
-<img src="kukulkan.png" alt="Kukulkán" width="200">
-</div>
-
-Kukulkán is Quetzal's companion agent: an **ethical hacking and cybersecurity mentor**. Where Quetzal builds, Kukulkán teaches. It walks you through fundamentals step by step and never runs commands on your behalf.
-
-- 🎓 **Teaches, doesn't execute** — shell is denied by design; it explains each command and lets you decide whether to run it
-- 🧪 **Authorized labs only** — OWASP Juice Shop, isolated VMs, deliberately vulnerable apps
-- 🕵️ **Privacy and anonymity** — VPN, proxies, Tor, DNS leaks, cookies, fingerprinting, and their real limits
-- 🛡️ **Blue team too** — logs, detection, forensics, incident response
-- 🤖 **AI security** — prompt injection, jailbreaks, RAG and agent tooling risks
-
-**Study modes** (conversational shortcuts, not terminal commands):
-
-| Shortcut | What it does |
-|----------|--------------|
-| `/aprender tema` | Explain from fundamentals with guided practice |
-| `/practica tema` | Lab with objective, scope, steps, evidence and cleanup |
-| `/quiz tema` | One question at a time; waits for your answer |
-| `/repasar` | Review and detect gaps |
-| `/ruta` | Current unit, prerequisites, next milestones |
-| `/analizar archivo` | Analyze material you provide, keeping its terminology |
-| `/cve ID` | Affected products, sources, CWE/CVSS, impact, mitigation |
-| `/informe` | Reproducible report with sanitized evidence |
-| `/continuar` | Resume from available progress |
-
-**Guardrails:** no access to third-party systems, no credential theft, no malware, no exfiltration of real data, no hiding an intrusion. If scope isn't clear, it asks and offers a local simulation instead.
-
-**Permissions:** `read` allowed · `shell`, `edit`, `subagent`, `external_directory` denied · `websearch`, `webfetch` ask.
-
-> *"Primero entender, después automatizar."*
 
 ---
 
@@ -128,24 +120,59 @@ can't do that for every client without breaking every time a config format chang
 
 Quetzal comes with a complete AI development ecosystem, inspired by [Gentleman AI](https://github.com/Gentleman-Programming/gentle-ai):
 
-### 🧠 Quetzal Agent
-The core architect agent that brings discipline to your coding workflow.
+### 🦜 Quetzal Agent
+The architect. Writes code, reviews it, and verifies the result.
 
-**Features:**
-- Adaptive workflow: THINK → EXPLORE → PLAN → BUILD → VERIFY → REVIEW
-- Acts autonomously when appropriate, asks only when it matters
-- Detects overengineering and technical debt without dogmatic patterns
-- Verifies its own changes (tests/build/lint) before declaring success
-- Explicit security, Git, and evidence-based debugging policies
+| What it does | Detail |
+|---|---|
+| Adaptive workflow | THINK → EXPLORE → PLAN → BUILD → VERIFY → REVIEW |
+| Risk-based autonomy | Acts on low/medium risk; confirms before high-risk or irreversible moves |
+| Self-verification | Runs tests, build, or lint before claiming success |
+| Evidence-based debugging | Reproduce → observe → hypothesize → prove → fix |
+| Anti-overengineering | Applies patterns only when they solve a real problem |
+| Persistent memory | Saves decisions and hard-won context to Engram |
+
+Reads your project's `AGENTS.md` for stack, conventions, and test commands — that file
+wins over the global prompt on operational details.
+
+**Permissions:** `shell`, `read`, `edit`, `subagent` allowed · asks before `git commit`,
+`git push`, `git rebase`, `git reset --hard` · denies `.env`, `credentials.json`,
+`secrets/**`.
 
 ### 🐍 Kukulkán Agent
-The companion mentor agent for ethical hacking and cybersecurity. Read-only by design: it teaches and reviews, never executes.
+The mentor. Teaches ethical hacking and cybersecurity, never executes.
 
-**Features:**
-- Progressive curriculum: systems, networking, privacy, pentesting, CVEs, blue team, AI security
-- Guided labs with explicit scope and authorization checks
-- Manual-first pedagogy: understand the procedure before touching a tool
-- `/aprender`, `/practica`, `/quiz`, `/repasar`, `/ruta`, `/cve`, `/informe` study modes
+| What it does | Detail |
+|---|---|
+| Teaching, not executing | Shell is denied by design; it explains each command and you decide |
+| Authorized labs only | OWASP Juice Shop, isolated VMs, deliberately vulnerable apps |
+| Privacy and anonymity | VPN, proxies, Tor, DNS leaks, cookies, fingerprinting, and their real limits |
+| Pentesting and CVEs | Scope, methodology, CWE/CVSS, impact, mitigation |
+| Blue team | Logs, detection, forensics, incident response |
+| AI security | Prompt injection, jailbreaks, RAG and agent tooling risks |
+
+**Study modes** (conversational shortcuts, not terminal commands):
+
+| Shortcut | What it does |
+|----------|--------------|
+| `/aprender tema` | Explain from fundamentals with guided practice |
+| `/practica tema` | Lab with objective, scope, steps, evidence and cleanup |
+| `/quiz tema` | One question at a time; waits for your answer |
+| `/repasar` | Review and detect gaps |
+| `/ruta` | Current unit, prerequisites, next milestones |
+| `/analizar archivo` | Analyze material you provide, keeping its terminology |
+| `/cve ID` | Affected products, sources, CWE/CVSS, impact, mitigation |
+| `/informe` | Reproducible report with sanitized evidence |
+| `/continuar` | Resume from available progress |
+
+**Guardrails:** no access to third-party systems, no credential theft, no malware, no
+exfiltration of real data, no hiding an intrusion. If scope isn't clear, it asks and
+offers a local simulation instead.
+
+**Permissions:** `read` allowed · `shell`, `edit`, `subagent`, `external_directory`
+denied · `websearch`, `webfetch` ask.
+
+> *"Primero entender, después automatizar."*
 
 ### 💾 Engram (Persistent Memory)
 [Engram](https://github.com/Gentleman-Programming/engram) remembers decisions, bugs, and context across sessions.
