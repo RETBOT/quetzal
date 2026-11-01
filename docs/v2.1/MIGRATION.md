@@ -42,7 +42,10 @@ La nueva ruta activa es `skills/engineering-flow/` y `workflows/engineering-loop
 1. Usa exclusivamente el adaptador `client-adapters/opencode-v2/` si tu instalación usa `agents`/`permissions` y agentes Markdown.
 2. Copia los archivos de `agents/` de ese adaptador a `.opencode/agents/`.
 3. Fusiona `opencode.fragment.jsonc` y `AGENTS.md.fragment` con la configuración e instrucciones existentes.
-4. El adaptador define Quetzal como principal, Kukulkán en modo `all` y los helpers ocultos como subagentes.
+4. El adaptador define Quetzal como principal, Kukulkán en modo `all` y los helpers como
+   subagentes. En OpenCode v2.2.5 los helpers deben ir con `hidden: false` (a pesar de
+   que arriba decimos "ocultos"): con `hidden: true` salen del catálogo `subagent` y
+   Quetzal no puede invocarlos. Si en otra versión deja de ser así, revisitad.
 5. La revisión independiente permite shell únicamente para `git diff` y `git status`; confirma que las reglas tengan prioridad correcta en la versión instalada.
 
 **No mezcles adaptadores V1 y V2.** La sintaxis de permisos y el modelo de agentes no son compatibles entre ambos.
