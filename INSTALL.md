@@ -13,6 +13,12 @@ You are installing Quetzal and Kukulkán from https://github.com/RETBOT/quetzal.
 
 Quetzal is an architect agent (writes code, reviews, plans).
 Kukulkán is a cybersecurity mentor agent (read-only: teaches, never executes).
+They are backed by two read-only helpers: codebase-explorer and independent-reviewer.
+
+This repository is on the v2.1 architecture: two principal agents, two scoped
+helpers, and skills loaded on demand. Do NOT install the legacy `sdd-*` agents or
+the `sdd` skill unless I explicitly ask for them. Read docs/v2.1/MIGRATION.md and
+docs/v2.1/LEGACY-SDD-RETIREMENT.md before you start.
 
 ## Rules
 
@@ -43,9 +49,11 @@ The pieces that matter:
 |---|---|
 | `quetzal/QUETZAL.md` | Quetzal system prompt (portable, no frontmatter) |
 | `kukulkan/kukulkan.md` | Kukulkán system prompt (portable, no frontmatter) |
-| `agents/sdd-*/agent.md` | 11 SDD sub-agent prompts (portable) |
-| `skills/<name>/SKILL.md` | Skills: code-review, refactoring, sdd, testing |
-| `workflows/*.md` | Optional workflow references |
+| `agents/codebase-explorer/agent.md` | Read-only recon helper (portable) |
+| `agents/independent-reviewer/agent.md` | Read-only review helper (portable) |
+| `agents/sdd-*/agent.md` | 11 legacy SDD sub-agent prompts — see `docs/v2.1/LEGACY-SDD-RETIREMENT.md` |
+| `skills/<name>/SKILL.md` | 17 active skills (4 general, 4 .NET, 4 web, 5 security) + `sdd` as legacy |
+| `workflows/*.md` | Workflow references, including the active `engineering-loop.md` |
 | `presets/*.md` | Optional operating modes |
 
 The prompts are client-agnostic. Only the wrapper changes per client.
@@ -58,6 +66,34 @@ Config root: `~/.config/opencode` (`%USERPROFILE%\.config\opencode` on Windows).
 
     agent-defs/quetzal/QUETZAL.md
     agent-defs/kukulkan/kukulkan.md
+    agent-defs/codebase-explorer/agent.md
+    agent-defs/independent-reviewer/agent.md
+
+### 2.2 Copy the skills
+
+    skills/code-review/SKILL.md
+    skills/refactoring/SKILL.md
+    skills/engineering-flow/SKILL.md
+    skills/testing/SKILL.md
+    skills/dotnet-efcore/SKILL.md
+    skills/dotnet-maui/SKILL.md
+    skills/dotnet-windows-forms/SKILL.md
+    skills/aspnet-mvc/SKILL.md
+    skills/react-frontend/SKILL.md
+    skills/devextreme/SKILL.md
+    skills/javascript-web/SKILL.md
+    skills/api-design/SKILL.md
+    skills/network-analysis/SKILL.md
+    skills/web-api-pentest/SKILL.md
+    skills/vulnerability-triage/SKILL.md
+    skills/llm-security/SKILL.md
+    skills/security-lab-design/SKILL.md
+
+`dotnet-windows-forms` also needs its `references/` folder copied alongside `SKILL.md`,
+or the skill will point at files that don't exist.
+
+Optional, legacy only — skip unless the user explicitly wants the old SDD chain:
+
     agent-defs/sdd-init/agent.md
     agent-defs/sdd-explore/agent.md
     agent-defs/sdd-propose/agent.md
@@ -69,13 +105,7 @@ Config root: `~/.config/opencode` (`%USERPROFILE%\.config\opencode` on Windows).
     agent-defs/sdd-archive/agent.md
     agent-defs/sdd-onboard/agent.md
     agent-defs/sdd-orchestrator/agent.md
-
-### 2.2 Copy the skills
-
-    skills/code-review/SKILL.md
-    skills/refactoring/SKILL.md
     skills/sdd/SKILL.md
-    skills/testing/SKILL.md
 
 ### 2.3 Merge into `opencode.json`
 
@@ -107,12 +137,46 @@ Add these entries under the existing `agents` key (create it if missing):
         { "action": "websearch", "resource": "*", "effect": "ask" },
         { "action": "webfetch", "resource": "*", "effect": "ask" }
       ]
+    },
+    "codebase-explorer": {
+      "system": "{file:./agent-defs/codebase-explorer/agent.md}",
+      "description": "Read-only reconnaissance helper: returns paths, lines, flow and dependencies. Never implements.",
+      "mode": "subagent",
+      "hidden": false,
+      "permissions": [
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "deny" },
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" }
+      ]
+    },
+    "independent-reviewer": {
+      "system": "{file:./agent-defs/independent-reviewer/agent.md}",
+      "description": "Read-only review helper: returns findings without fixing them.",
+      "mode": "subagent",
+      "hidden": false,
+      "permissions": [
+        { "action": "shell", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "git diff *", "effect": "allow" },
+        { "action": "shell", "resource": "git status *", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" }
+      ]
     }
   }
 }
 ```
 
-Add the SDD agents with the same shape:
+> **Rule order matters.** V2 evaluates permissions in order and the last matching rule
+> wins, so the two `git` allows must come **after** the catch-all `shell` deny.
+> Confirm the precedence in the installed version before trusting it (see
+> `docs/v2.1/MIGRATION.md`, section 5).
+
+Legacy SDD agents are **not** part of the v2.1 install. If the user explicitly wants
+them, add them with the same shape using this table:
 
 | Agent | `mode` | `hidden` | Permissions |
 |---|---|---|---|
@@ -128,9 +192,24 @@ Add the SDD agents with the same shape:
 | `sdd-onboard` | `subagent` | `true` | shell allow, read allow, edit allow |
 | `sdd-orchestrator` | `primary` | `false` | shell allow, read allow, edit allow, subagent allow |
 
-Each one uses `"system": "{file:./agent-defs/<agent>/agent.md}"` and a short
-`description`. Do not set `temperature` or `tools` on V2 agents: those are V1
-fields and are ignored.
+Quetzal must be able to invoke `kukulkan`, `codebase-explorer` and
+`independent-reviewer`. There must be **no** permission granting
+`sdd-orchestrator` in a v2.1 install.
+
+> **Por qué `hidden: false` en los helpers.** La documentación upstream llama a
+> estos helpers "agentes ocultos" (`hidden: true`), pero en OpenCode v2.2.5 un
+> agente `hidden: true` desaparece por completo del catálogo que usa la tool
+> `subagent`: ni siquiera puede ser lanzado por ID cuando el agente padre lo nombra
+> en su prompt. Así, con `hidden: true`, Quetzal delegará silenciosamente al
+> agente built-in `explore` en lugar del helper. Se verificó empíricamente. Usar
+> `hidden: false` mantiene la restricción de no aparecer en el ciclo de agentes
+> principales (eso lo garantiza `mode: subagent`), mientras los hace
+> descubribles como subagentes. Si en una versión futura `hidden: true` deja de
+> excluir del catálogo de delegación, se puede volver al `hidden: true`.
+
+Todo agente usa `"system": "{file:./agent-defs/<agent>/agent.md}"` y una short
+`description`. No pongas `temperature` ni `tools` en agentes V2; son campos V1
+que se ignoran.
 
 ### 2.4 Safety permissions (recommended)
 
@@ -211,8 +290,36 @@ tools: Read, Glob, Grep, WebSearch, WebFetch
 <content of kukulkan/kukulkan.md>
 ```
 
-SDD sub-agents: same pattern, `tools: Read, Glob, Grep, Bash`, plus `Write, Edit`
-for `sdd-apply` and `sdd-onboard`.
+Helper subagents: same pattern, but their tool list is **read-only by construction**.
+
+`~/.claude/agents/codebase-explorer.md`:
+
+```markdown
+---
+name: codebase-explorer
+description: Read-only codebase reconnaissance. Returns paths, lines, flow and dependencies. Never implements.
+tools: Read, Glob, Grep
+---
+```
+
+`~/.claude/agents/independent-reviewer.md`:
+
+```markdown
+---
+name: independent-reviewer
+description: Read-only independent review of a change. Returns findings without fixing them.
+tools: Read, Glob, Grep, Bash
+---
+```
+
+For `independent-reviewer`, `Bash` exists only to run `git diff` and `git status`.
+Claude Code has no per-command tool filter in the agent frontmatter, so **check the
+global `settings.json` permissions** and confirm the effective allow-list covers only
+those two commands. If you can't confirm it, drop `Bash` entirely — the reviewer can
+still read files, just not the diff.
+
+Legacy SDD sub-agents, only if explicitly requested: `tools: Read, Glob, Grep, Bash`,
+plus `Write, Edit` for `sdd-apply` and `sdd-onboard`.
 
 Skills go to `~/.claude/skills/<name>/SKILL.md`.
 
@@ -250,9 +357,36 @@ developer_instructions = """
 """
 ```
 
-SDD sub-agents: same pattern. Disable `features.shell_tool` for the read-only
-ones (`sdd-explore`, `sdd-propose`, `sdd-spec`, `sdd-design`, `sdd-tasks`,
-`sdd-archive`).
+Helper subagents: same pattern. Disable `features.shell_tool` on both — Codex custom
+agents inherit the parent's sandbox, so a role definition is not a security boundary
+by itself. For audit work, run the parent session with a `read-only` sandbox.
+
+```toml
+name = "codebase-explorer"
+description = "Read-only codebase reconnaissance. Returns paths, lines, flow and dependencies. Never implements."
+features.shell_tool = false
+features.request_permissions_tool = false
+developer_instructions = """
+<content of agents/codebase-explorer/agent.md>
+"""
+```
+
+```toml
+name = "independent-reviewer"
+description = "Read-only independent review of a change. Returns findings without fixing them."
+features.shell_tool = false
+features.request_permissions_tool = false
+developer_instructions = """
+<content of agents/independent-reviewer/agent.md>
+"""
+```
+
+Without `shell_tool` the reviewer cannot run `git diff`, so you must paste the diff
+into the request. Say so in the report instead of implying it inspected the change.
+
+Legacy SDD sub-agents, only if explicitly requested: same pattern, disabling
+`features.shell_tool` for the read-only ones (`sdd-explore`, `sdd-propose`,
+`sdd-spec`, `sdd-design`, `sdd-tasks`, `sdd-archive`).
 
 Skills go to `~/.agents/skills/<name>/SKILL.md`.
 
