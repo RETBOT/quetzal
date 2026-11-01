@@ -142,7 +142,7 @@ Add these entries under the existing `agents` key (create it if missing):
       "system": "{file:./agent-defs/codebase-explorer/agent.md}",
       "description": "Read-only reconnaissance helper: returns paths, lines, flow and dependencies. Never implements.",
       "mode": "subagent",
-      "hidden": true,
+      "hidden": false,
       "permissions": [
         { "action": "read", "resource": "*", "effect": "allow" },
         { "action": "shell", "resource": "*", "effect": "deny" },
@@ -155,11 +155,11 @@ Add these entries under the existing `agents` key (create it if missing):
       "system": "{file:./agent-defs/independent-reviewer/agent.md}",
       "description": "Read-only review helper: returns findings without fixing them.",
       "mode": "subagent",
-      "hidden": true,
+      "hidden": false,
       "permissions": [
         { "action": "shell", "resource": "*", "effect": "deny" },
-        { "action": "shell", "resource": "git diff*", "effect": "allow" },
-        { "action": "shell", "resource": "git status*", "effect": "allow" },
+        { "action": "shell", "resource": "git diff *", "effect": "allow" },
+        { "action": "shell", "resource": "git status *", "effect": "allow" },
         { "action": "read", "resource": "*", "effect": "allow" },
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "*", "effect": "deny" },
@@ -196,9 +196,20 @@ Quetzal must be able to invoke `kukulkan`, `codebase-explorer` and
 `independent-reviewer`. There must be **no** permission granting
 `sdd-orchestrator` in a v2.1 install.
 
-Every agent entry uses `"system": "{file:./agent-defs/<agent>/agent.md}"` and a short
-`description`. Do not set `temperature` or `tools` on V2 agents: those are V1
-fields and are ignored.
+> **Por qué `hidden: false` en los helpers.** La documentación upstream llama a
+> estos helpers "agentes ocultos" (`hidden: true`), pero en OpenCode v2.2.5 un
+> agente `hidden: true` desaparece por completo del catálogo que usa la tool
+> `subagent`: ni siquiera puede ser lanzado por ID cuando el agente padre lo nombra
+> en su prompt. Así, con `hidden: true`, Quetzal delegará silenciosamente al
+> agente built-in `explore` en lugar del helper. Se verificó empíricamente. Usar
+> `hidden: false` mantiene la restricción de no aparecer en el ciclo de agentes
+> principales (eso lo garantiza `mode: subagent`), mientras los hace
+> descubribles como subagentes. Si en una versión futura `hidden: true` deja de
+> excluir del catálogo de delegación, se puede volver al `hidden: true`.
+
+Todo agente usa `"system": "{file:./agent-defs/<agent>/agent.md}"` y una short
+`description`. No pongas `temperature` ni `tools` en agentes V2; son campos V1
+que se ignoran.
 
 ### 2.4 Safety permissions (recommended)
 

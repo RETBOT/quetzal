@@ -16,8 +16,8 @@ Instalar la arquitectura de dos agentes principales con helpers internos y skill
 Fusiona estos elementos:
 
 - `plugin.json` (si existe, actualiza y valida el manifiesto, no lo sustituyas ciegamente).
-- `quetzal/QUETZAL.md` y `quetzal/references/`.
-- `kukulkan/kukulkan.md` y `kukulkan/references/`.
+- `quetzal/QUETZAL.md` y `quetzal/references/` (si ese directorio existe en el paquete).
+- `kukulkan/kukulkan.md` y `kukulkan/references/` (si ese directorio existe en el paquete).
 - `agents/` y `workflows/`.
 - `skills/` nuevas. Conserva las skills propias que no sean reemplazadas explícitamente.
 - `client-adapters/` e `integrations/`.
