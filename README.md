@@ -110,7 +110,7 @@ version instead of guessing paths.
 | 🦜 **Quetzal** | Architect agent — plans, builds, reviews, verifies |
 | 🐍 **Kukulkán** | Cybersecurity mentor — read-only, teaches step by step |
 | 🧩 **2 helper subagents** | `codebase-explorer` (read-only recon) + `independent-reviewer` (read-only review) |
-| 🎯 **6 skills** | `code-review`, `refactoring`, `engineering-flow`, `testing`, `dotnet-windows-forms` (+ `sdd` as legacy) |
+| 🎯 **18 skills** | `code-review`, `refactoring`, `engineering-flow`, `testing` + 4 .NET + 4 web + 5 security (+ `sdd` as legacy) |
 | 💾 **Engram** *(optional)* | Persistent memory across sessions |
 | 📚 **Context7** *(optional)* | Up-to-date library documentation |
 
@@ -226,7 +226,19 @@ Quetzal includes specialized **skills** in the native OpenCode format (`SKILL.md
 | **🔨 refactoring** | `refactoring` | "Refactor this", "simplify this" |
 | **⚙️ engineering-flow** | `engineering-flow` | "How much process does this need?", multi-file changes |
 | **🧪 testing** | `testing` | "Run tests", "TDD", "coverage" |
+| **🗄️ dotnet-efcore** | `dotnet-efcore` | EF Core, LINQ, migrations, slow queries |
+| **📱 dotnet-maui** | `dotnet-maui` | .NET MAUI, Android/iOS/Windows, navigation, binding |
 | **🪟 dotnet-windows-forms** | `dotnet-windows-forms` | .NET WinForms, Designer, RESX, csproj, build errors |
+| **🌐 aspnet-mvc** | `aspnet-mvc` | ASP.NET MVC, Razor, controllers, CSRF |
+| **⚛️ react-frontend** | `react-frontend` | React components, hooks, re-renders, state |
+| **📊 devextreme** | `devextreme` | DataGrid, CustomStore, `DataSourceLoader`, virtual scrolling |
+| **🟨 javascript-web** | `javascript-web` | DOM, jQuery, AJAX, async, client-side XSS |
+| **🔌 api-design** | `api-design` | REST contracts, versioning, errors, idempotency |
+| **🕸️ network-analysis** | `network-analysis` | TCP/IP, DNS, TLS, `tcpdump`, pcap analysis |
+| **🎯 web-api-pentest** | `web-api-pentest` | Authorized web/API pentest, OWASP, BOLA |
+| **🧾 vulnerability-triage** | `vulnerability-triage` | "Does this CVE affect me?", CVSS, CWE |
+| **🤖 llm-security** | `llm-security` | Prompt injection, RAG, tool abuse, MCP |
+| **🧪 security-lab-design** | `security-lab-design` | Isolated labs, reproducibility, cleanup |
 | **📋 sdd** *(legacy)* | `sdd` | Retired from the active path — see [LEGACY-SDD-RETIREMENT](docs/v2.1/LEGACY-SDD-RETIREMENT.md) |
 
 Quetzal invokes the matching skill with the `skill` tool based on its `description`.
@@ -384,7 +396,19 @@ quetzal/
 │   ├── refactoring/SKILL.md
 │   ├── engineering-flow/SKILL.md      # Active path (replaces sdd)
 │   ├── testing/SKILL.md
+│   ├── dotnet-efcore/SKILL.md
+│   ├── dotnet-maui/SKILL.md
 │   ├── dotnet-windows-forms/SKILL.md
+│   ├── aspnet-mvc/SKILL.md
+│   ├── react-frontend/SKILL.md
+│   ├── devextreme/SKILL.md
+│   ├── javascript-web/SKILL.md
+│   ├── api-design/SKILL.md
+│   ├── network-analysis/SKILL.md
+│   ├── web-api-pentest/SKILL.md
+│   ├── vulnerability-triage/SKILL.md
+│   ├── llm-security/SKILL.md
+│   ├── security-lab-design/SKILL.md
 │   └── sdd/SKILL.md                   # Legacy — scheduled for retirement
 ├── agents/
 │   ├── codebase-explorer/agent.md     # Read-only recon helper
@@ -618,8 +642,25 @@ Additional skills included:
 - `refactoring` — Refactoring techniques
 - `engineering-flow` — Proportional engineering workflow (active path)
 - `testing` — Unit, integration, and E2E testing
+- `dotnet-efcore` — EF Core, LINQ, migrations, tracking, performance
+- `dotnet-maui` — .NET MAUI cross-platform, navigation, DI, lifecycle
 - `dotnet-windows-forms` — WinForms project, Designer, RESX and build validation
+- `aspnet-mvc` — ASP.NET MVC, Razor, controllers, request security
+- `react-frontend` — React components, hooks, state, rendering
+- `devextreme` — DataGrid, CustomStore, `DataSourceLoader`, virtual scrolling
+- `javascript-web` — JavaScript, jQuery, AJAX, DOM, async
+- `api-design` — REST contracts, versioning, errors, idempotency, resilience
+- `network-analysis` — Networks, protocols, traffic capture (Kukulkán)
+- `web-api-pentest` — Authorized web/API pentesting and OWASP (Kukulkán)
+- `vulnerability-triage` — CVE/CWE/CVSS, impact and mitigation (Kukulkán)
+- `llm-security` — Prompt injection, RAG, agents, MCP (Kukulkán)
+- `security-lab-design` — Isolated labs, reproducibility, cleanup (Kukulkán)
 - `sdd` — Spec-Driven Development (legacy, scheduled for retirement)
+
+All skills except `engineering-flow` and `dotnet-windows-forms` are: *scaffolds
+reconstructed from `docs/v2.1/SKILLS-REGISTRY.md`*, because the upstream v2.1 package
+arrived incomplete. Each one says so at the top; replace them when the reference
+version is available.
 
 
 ---

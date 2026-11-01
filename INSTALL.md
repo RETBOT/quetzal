@@ -52,7 +52,7 @@ The pieces that matter:
 | `agents/codebase-explorer/agent.md` | Read-only recon helper (portable) |
 | `agents/independent-reviewer/agent.md` | Read-only review helper (portable) |
 | `agents/sdd-*/agent.md` | 11 legacy SDD sub-agent prompts — see `docs/v2.1/LEGACY-SDD-RETIREMENT.md` |
-| `skills/<name>/SKILL.md` | Skills: code-review, refactoring, engineering-flow, testing, dotnet-windows-forms (+ sdd as legacy) |
+| `skills/<name>/SKILL.md` | 17 active skills (4 general, 4 .NET, 4 web, 5 security) + `sdd` as legacy |
 | `workflows/*.md` | Workflow references, including the active `engineering-loop.md` |
 | `presets/*.md` | Optional operating modes |
 
@@ -75,7 +75,22 @@ Config root: `~/.config/opencode` (`%USERPROFILE%\.config\opencode` on Windows).
     skills/refactoring/SKILL.md
     skills/engineering-flow/SKILL.md
     skills/testing/SKILL.md
+    skills/dotnet-efcore/SKILL.md
+    skills/dotnet-maui/SKILL.md
     skills/dotnet-windows-forms/SKILL.md
+    skills/aspnet-mvc/SKILL.md
+    skills/react-frontend/SKILL.md
+    skills/devextreme/SKILL.md
+    skills/javascript-web/SKILL.md
+    skills/api-design/SKILL.md
+    skills/network-analysis/SKILL.md
+    skills/web-api-pentest/SKILL.md
+    skills/vulnerability-triage/SKILL.md
+    skills/llm-security/SKILL.md
+    skills/security-lab-design/SKILL.md
+
+`dotnet-windows-forms` also needs its `references/` folder copied alongside `SKILL.md`,
+or the skill will point at files that don't exist.
 
 Optional, legacy only — skip unless the user explicitly wants the old SDD chain:
 
