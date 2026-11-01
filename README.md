@@ -52,7 +52,7 @@
 </table>
 
 <p align="center">They share the same ecosystem — Engram for memory, Context7 for docs,
-the same SDD agents — but they never overlap: <b>Quetzal builds, Kukulkán teaches.</b></p>
+the same helper subagents — but they never overlap: <b>Quetzal builds, Kukulkán teaches.</b></p>
 
 ---
 
@@ -109,8 +109,8 @@ version instead of guessing paths.
 |---|---|
 | 🦜 **Quetzal** | Architect agent — plans, builds, reviews, verifies |
 | 🐍 **Kukulkán** | Cybersecurity mentor — read-only, teaches step by step |
-| 🧩 **11 SDD agents** | Spec-Driven Development sub-agents + orchestrator |
-| 🎯 **4 skills** | `code-review`, `refactoring`, `sdd`, `testing` |
+| 🧩 **2 helper subagents** | `codebase-explorer` (read-only recon) + `independent-reviewer` (read-only review) |
+| 🎯 **6 skills** | `code-review`, `refactoring`, `engineering-flow`, `testing`, `dotnet-windows-forms` (+ `sdd` as legacy) |
 | 💾 **Engram** *(optional)* | Persistent memory across sessions |
 | 📚 **Context7** *(optional)* | Up-to-date library documentation |
 
@@ -224,8 +224,10 @@ Quetzal includes specialized **skills** in the native OpenCode format (`SKILL.md
 |-------|--------------------|-------------|
 | **🔍 code-review** | `code-review` | "Review this code" |
 | **🔨 refactoring** | `refactoring` | "Refactor this", "simplify this" |
-| **📋 sdd** | `sdd` | "Plan a feature", "design this" |
+| **⚙️ engineering-flow** | `engineering-flow` | "How much process does this need?", multi-file changes |
 | **🧪 testing** | `testing` | "Run tests", "TDD", "coverage" |
+| **🪟 dotnet-windows-forms** | `dotnet-windows-forms` | .NET WinForms, Designer, RESX, csproj, build errors |
+| **📋 sdd** *(legacy)* | `sdd` | Retired from the active path — see [LEGACY-SDD-RETIREMENT](docs/v2.1/LEGACY-SDD-RETIREMENT.md) |
 
 Quetzal invokes the matching skill with the `skill` tool based on its `description`.
 
@@ -236,15 +238,16 @@ Commands that configure and manage your project:
 
 ```bash
 ./commands/project-init      # Initialize project with Quetzal
-./commands/sdd-init          # Detect stack and configure SDD
 ./commands/skill-registry    # Scan and register available skills
 ```
+
+`./commands/sdd-init` is **legacy** and scheduled for retirement; the active flow is
+`workflows/engineering-loop.md`.
 
 **Usage example:**
 ```bash
 cd my-project
 ../quetzal/commands/project-init    # Configure Quetzal
-../quetzal/commands/sdd-init        # Detect React/Node/etc
 ../quetzal/commands/skill-registry  # Register skills
 ```
 
@@ -253,7 +256,8 @@ Predefined workflows for common situations:
 
 | Workflow | Description | File |
 |----------|-------------|---------|
-| **feature-workflow** | Create new feature with full SDD | `workflows/feature-workflow.md` |
+| **engineering-loop** | **Active path** — proportional 8-step flow | `workflows/engineering-loop.md` |
+| **feature-workflow** | Create new feature | `workflows/feature-workflow.md` |
 | **bugfix-workflow** | Fix bugs with root cause analysis | `workflows/bugfix-workflow.md` |
 | **refactor-workflow** | Safe refactoring step by step | `workflows/refactor-workflow.md` |
 | **pr-workflow** | Create and review Pull Requests | `workflows/pr-workflow.md` |
@@ -261,11 +265,11 @@ Predefined workflows for common situations:
 ### 🎛️ Presets (Operating Modes)
 Presets for different contexts:
 
-| Preset | Coverage | SDD | Approvals | When to use |
-|--------|----------|-----|-----------|-------------|
-| **strict-mode** | 80% minimum | Full, mandatory | 2 | Enterprise, critical code |
-| **fast-mode** | 60% target | Simplified | 1 | MVPs, prototypes |
-| **team-mode** | 70% target | Standard | 1 + conventions | Teams 3-10 devs |
+| Preset | Coverage | Flow | Approvals | When to use |
+|--------|----------|------|-----------|-------------|
+| **strict-mode** | 80% minimum | Engineering loop, full checks | 2 | Enterprise, critical code |
+| **fast-mode** | 60% target | Engineering loop, inline | 1 | MVPs, prototypes |
+| **team-mode** | 70% target | Engineering loop + conventions | 1 + conventions | Teams 3-10 devs |
 
 **Change preset** in `.quetzal/config.json`:
 
@@ -376,14 +380,20 @@ quetzal/
 ├── kukulkan.png                # Kukulkán logo
 ├── banner.jpg                  # Social preview / README hero (1280×640)
 ├── skills/
-│   ├── code-review/SKILL.md    # Native OpenCode skills
+│   ├── code-review/SKILL.md
 │   ├── refactoring/SKILL.md
-│   ├── sdd/SKILL.md
-│   └── testing/SKILL.md
-├── agents/                     # SDD sub-agents (sdd-*)
-├── commands/                   # project-init, sdd-init, skill-registry
-├── workflows/                  # feature, bugfix, refactor, pr
+│   ├── engineering-flow/SKILL.md      # Active path (replaces sdd)
+│   ├── testing/SKILL.md
+│   ├── dotnet-windows-forms/SKILL.md
+│   └── sdd/SKILL.md                   # Legacy — scheduled for retirement
+├── agents/
+│   ├── codebase-explorer/agent.md     # Read-only recon helper
+│   ├── independent-reviewer/agent.md  # Read-only review helper
+│   └── sdd-*/agent.md                 # Legacy SDD sub-agents
+├── commands/                   # project-init, skill-registry (+ sdd-init legacy)
+├── workflows/                  # engineering-loop, feature, bugfix, refactor, pr
 ├── presets/                    # strict, fast, team
+├── docs/v2.1/                  # Architecture decisions & migration notes
 ├── INSTALL.md                  # Installation prompt for agents (all clients)
 └── README.md                   # This file
 ```
@@ -413,7 +423,8 @@ which a blind overwrite cannot.
 ### What an update covers
 
 - ✅ Quetzal and Kukulkán prompts
-- ✅ SDD agents and skills
+- ✅ Helper subagents (`codebase-explorer`, `independent-reviewer`)
+- ✅ Skills
 - ✅ Agent entries in your client's config
 - ⚪ Engram and Context7 (only if you ask it to upgrade the binaries)
 
@@ -496,8 +507,9 @@ replace. If it happens again, install manually with
 <details>
 <summary>⚠️ Which agent is active?</summary>
 
-- **OpenCode:** `Tab` or `/agent` cycles primary agents; `quetzal`, `kukulkan` and
-  `sdd-orchestrator` are the visible ones.
+- **OpenCode:** `Tab` or `/agent` cycles primary agents; `quetzal` and `kukulkan` are
+  the visible ones. (`sdd-orchestrator` is still visible until the SDD retirement
+  completes.)
 - **Claude Code:** `claude --agent quetzal` starts a session as Quetzal; otherwise
   they're subagents invoked by description.
 - **Codex:** pick the agent when starting the session.
@@ -511,9 +523,38 @@ Prompt changes apply to **new sessions only**. Restart the session to see them.
 
 This section documents customizations made on top of Gentleman AI base.
 
-### SDD Agent Structure
+### v2.1 Architecture (current)
 
-11 SDD agents (Spec-Driven Development) were implemented for structured workflow:
+The active architecture is **two principal agents plus two read-only helpers**:
+
+```
+User
+ ├── Quetzal (principal: designs, questions, implements, verifies)
+ │    ├── codebase-explorer   (internal subagent, read-only)
+ │    ├── independent-reviewer (internal subagent, read-only)
+ │    └── Kukulkán            (security subagent, also user-selectable)
+ └── Kukulkán (selectable principal: mentor and security specialist)
+```
+
+| Piece | Role | Tools |
+|---|---|---|
+| `quetzal` | Principal. Owns implementation and integration. | shell, read, edit, subagent |
+| `kukulkan` | Security specialist. Read-only; reports findings, never executes. | read; shell/edit/subagent denied; websearch/webfetch ask |
+| `codebase-explorer` | Read-only reconnaissance. Returns paths, lines, flow, dependencies. | read, glob, grep |
+| `independent-reviewer` | Read-only review. Returns findings, never fixes them. | read, glob, grep + shell **only** for `git diff` / `git status` |
+
+Design decisions live in [`docs/v2.1/DECISIONS.md`](docs/v2.1/DECISIONS.md); the
+proportional workflow lives in [`workflows/engineering-loop.md`](workflows/engineering-loop.md).
+
+### SDD Agent Structure (legacy)
+
+> **Status: scheduled for retirement.** Full rationale in
+> [`docs/v2.1/LEGACY-SDD-RETIREMENT.md`](docs/v2.1/LEGACY-SDD-RETIREMENT.md).
+> These agents are documented here because they are still present in the repo.
+
+11 SDD agents (Spec-Driven Development) were imported from Gentleman AI. Upstream
+retired SDD in favor of ODD, and v2.1 replaces the phase chain with `engineering-flow`
+plus two scoped helpers. The agents remain until the retirement completes.
 
 | Agent | Purpose |
 |--------|-----------|
@@ -529,7 +570,7 @@ This section documents customizations made on top of Gentleman AI base.
 | `sdd-onboard` | Guide user through full SDD cycle |
 | `sdd-orchestrator` | Coordinate SDD workflows delegating to sub-agents |
 
-### SDD Agent Configuration
+### SDD Agent Configuration (legacy)
 
 SDD agents are mostly configured as `subagent` with `hidden: true`, except `sdd-orchestrator` which is configured as `primary` to be visible and directly accessible.
 
@@ -537,21 +578,25 @@ SDD agents are mostly configured as `subagent` with `hidden: true`, except `sdd-
 |--------|------|--------|-----------|
 | `quetzal` | primary | No | Main agent |
 | `kukulkan` | primary | No | Cybersecurity mentor |
-| `sdd-orchestrator` | primary | No | SDD Coordinator |
-| `sdd-init` | subagent | Yes | Detect stack/testing |
-| `sdd-explore` | subagent | Yes | Explore codebase |
-| `sdd-propose` | subagent | Yes | Create proposals |
-| `sdd-spec` | subagent | Yes | Specifications |
-| `sdd-design` | subagent | Yes | Architecture/design |
-| `sdd-tasks` | subagent | Yes | Break down tasks |
-| `sdd-apply` | subagent | Yes | Implement changes |
-| `sdd-verify` | subagent | Yes | Validate implementation |
-| `sdd-archive` | subagent | Yes | Archive changes |
-| `sdd-onboard` | subagent | Yes | Guide SDD cycle |
+| `codebase-explorer` | subagent | Yes | Read-only recon |
+| `independent-reviewer` | subagent | Yes | Read-only review |
+| `sdd-orchestrator` | primary | No | SDD Coordinator (legacy) |
+| `sdd-init` | subagent | Yes | Detect stack/testing (legacy) |
+| `sdd-explore` | subagent | Yes | Explore codebase (legacy) |
+| `sdd-propose` | subagent | Yes | Create proposals (legacy) |
+| `sdd-spec` | subagent | Yes | Specifications (legacy) |
+| `sdd-design` | subagent | Yes | Architecture/design (legacy) |
+| `sdd-tasks` | subagent | Yes | Break down tasks (legacy) |
+| `sdd-apply` | subagent | Yes | Implement changes (legacy) |
+| `sdd-verify` | subagent | Yes | Validate implementation (legacy) |
+| `sdd-archive` | subagent | Yes | Archive changes (legacy) |
+| `sdd-onboard` | subagent | Yes | Guide SDD cycle (legacy) |
 
 **Tools per agent:**
 - **Quetzal**: bash, read, write, edit, subagent
 - **Kukulkán**: read only (shell, edit, subagent, external_directory denied; websearch/webfetch ask)
+- **codebase-explorer**: read, glob, grep
+- **independent-reviewer**: read, glob, grep, shell restricted to `git diff` / `git status`
 - **sdd-orchestrator**: bash, read, write, edit, subagent
 - **sdd-init**: bash, read
 - **sdd-explore**: read
@@ -571,8 +616,11 @@ Agent definition files are installed in `~/.config/opencode/agent-defs/` instead
 Additional skills included:
 - `code-review` — Code review in Mexican architect style
 - `refactoring` — Refactoring techniques
-- `sdd` — Spec-Driven Development
+- `engineering-flow` — Proportional engineering workflow (active path)
 - `testing` — Unit, integration, and E2E testing
+- `dotnet-windows-forms` — WinForms project, Designer, RESX and build validation
+- `sdd` — Spec-Driven Development (legacy, scheduled for retirement)
+
 
 ---
 
@@ -582,9 +630,11 @@ Quetzal is a Markdown prompt plus one config entry — you can wire it by hand i
 minutes. [`INSTALL.md`](INSTALL.md) has the exact JSON for every client; this is the
 shape of the work.
 
-1. **Copy the prompts.** `quetzal/QUETZAL.md`, `kukulkan/kukulkan.md`, and the eleven
-   `agents/sdd-*/agent.md` files go into your client's agent directory. On OpenCode
-   that's `~/.config/opencode/agent-defs/<name>/`.
+1. **Copy the prompts.** `quetzal/QUETZAL.md`, `kukulkan/kukulkan.md`, and the two
+   helper prompts (`agents/codebase-explorer/agent.md`, `agents/independent-reviewer/agent.md`)
+   go into your client's agent directory. On OpenCode that's
+   `~/.config/opencode/agent-defs/<name>/`. The legacy `agents/sdd-*/agent.md` files
+   only need copying if you still want the old SDD chain.
 2. **Copy the skills.** `skills/<name>/SKILL.md` → `~/.config/opencode/skills/`.
 3. **Register each agent** in `~/.config/opencode/opencode.json` under `agents`, with
    `system` pointing at the prompt file you just copied:
@@ -607,8 +657,8 @@ shape of the work.
    }
    ```
 
-   Kukulkán and the SDD agents use the same shape with different `mode`, `hidden`, and
-   `permissions`. The full table is in [`INSTALL.md`](INSTALL.md).
+   Kukulkán and the helper subagents use the same shape with different `mode`, `hidden`,
+   and `permissions`. The full table is in [`INSTALL.md`](INSTALL.md).
 4. **Add the safety rules** to the top-level `permissions` array. V2 evaluates it in
    order and the **last matching rule wins**, so `deny` goes after the catch-all:
 
