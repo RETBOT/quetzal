@@ -417,8 +417,9 @@ quetzal/
 ├── commands/                   # project-init, skill-registry (+ sdd-init legacy)
 ├── workflows/                  # engineering-loop, feature, bugfix, refactor, pr
 ├── presets/                    # strict, fast, team
-├── docs/v2.1/                  # Architecture decisions & migration notes
-├── INSTALL.md                  # Installation prompt for agents (all clients)
+├── docs/v2.1/                  # DECISIONES, migracion y retiro de SDD
+├── VALIDATION.md               # Guia y resultados de validacion en vivo (v2.1)
+├── INSTALL.md
 └── README.md                   # This file
 ```
 
@@ -450,7 +451,42 @@ which a blind overwrite cannot.
 - ✅ Helper subagents (`codebase-explorer`, `independent-reviewer`)
 - ✅ Skills
 - ✅ Agent entries in your client's config
+- ✅ `VALIDATION.md` — re-run it after touching config or when OpenCode changes version
 - ⚪ Engram and Context7 (only if you ask it to upgrade the binaries)
+
+> **Cambio importante respecto a versiones anteriores del README:** en OpenCode v2.2.5
+> los helpers deben ir con `hidden: false` (ver `VALIDATION.md` §1 y el callout de
+> `INSTALL.md` §2.3). Con `hidden: true` salen del catálogo `subagent`: Quetzal
+> delegará al built-in `explore` pensando que `codebase-explorer` "no existe".
+> Determinado empíricamente. Se conserva `mode: subagent`, así que no aparecen en el
+> ciclo de agentes principales.
+
+---
+
+## 🔬 Validación y adaptaciones conocidas (OpenCode v2.2.5)
+
+README documenta el diseño objetivo (v2.1). `VALIDATION.md` y `docs/v2.1/MIGRATION.md`
+cargan con las áreas grises descubiertas empíricamente. Lo que debes saber antes de
+instalar sin leer la guía:
+
+1. **`mode: subagent` es suficiente para ocultar del ciclo de agentes principales.**
+   No es suficiente para ocultarse del catálogo que usa la tool `subagent`.
+2. **Por eso, en OpenCode, los helpers van con `hidden: false`.** El paquete upstream los
+   proponía `hidden: true`, pero a partir de v2.2.5 esa bandera también los saca de la
+   evidencia de delegación. Se probó T1 con `hidden: true` y el modelo reportó
+   explícitamente: “no existe un agente llamado `codebase-explorer`”.
+3. **Permisos: la última regla gana** (`permissions` y `agents.<id>.permissions`).
+   Mientras el `deny` amplio vaya primero y las excepciones después, la lectura y el
+   shell fuera de git se bloquean correctamente. El `Plan` y `General` built-ins
+   empaquetan reglas que se añaden; no asumir un conjunto vacío.
+4. **Skills descubiertas:** `~/.config/opencode/skills/` (global) y `.opencode/skills/`
+   (proyecto). La entrada `skills` de `opencode.json` suma directorios o URLs, no
+   sustituye.
+5. **La config se recarga sin reiniciar OpenCode** (`/reload` para un reload forzado).
+   Si cambias un `agent` o `permissions` y no se ve, no reinicies — mira el log de
+   servicio (`~/.local/share/opencode/log/opencode.log`, rol `server`).
+
+La fuente de verdad operativa es `INSTALL.md` (instalación/configuración), no este README.
 
 ---
 
